@@ -24,7 +24,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  DIRECTORY launch rviz urdf
+  DIRECTORY gazebo launch rviz urdf
   DESTINATION share/${PROJECT_NAME}
 )
 
