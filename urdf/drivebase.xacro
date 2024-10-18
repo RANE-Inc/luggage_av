@@ -75,9 +75,9 @@
         <origin xyz="${caster_wheels_F_X_offset} ${caster_wheels_F_Y_spacing/2} ${-drive_wheel_radius + caster_wheel_radius + caster_wheel_Z_offset + 0.01}" rpy="0 0 0" />
     </joint>
 
-    <xacro:caster_wheel name="caster_wheel_FR_joint"></xacro:caster_wheel>
+    <xacro:caster_wheel name="caster_wheel_FR"></xacro:caster_wheel>
 
-    <joint name="caster_wheel_joint_FR" type="fixed">
+    <joint name="caster_wheel_FR_joint" type="fixed">
         <parent link="base_link"/>
         <child link="caster_wheel_FR"/>
         <origin xyz="${caster_wheels_F_X_offset} -${caster_wheels_F_Y_spacing/2} ${-drive_wheel_radius + caster_wheel_radius + caster_wheel_Z_offset + 0.01}" rpy="0 0 0" />

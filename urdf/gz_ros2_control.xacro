@@ -27,7 +27,7 @@
 
     <gazebo>
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
-            <parameters>$(find luggage_av)/gazebo/dd_velocity_controller.yaml</parameters>
+            <parameters>$(find luggage_av)/parameters/gz_ros2_control.yaml</parameters>
         </plugin>
     </gazebo>
 

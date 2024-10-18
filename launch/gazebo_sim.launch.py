@@ -35,13 +35,13 @@ def generate_launch_description():
         arguments=['joint_state_broadcaster'],
     )
 
-    diff_drive_base_controller_spawner = Node(
+    diff_drive_controller_spawner = Node(
         package='controller_manager',
         executable='spawner',
         arguments=[
-            'diff_drive_base_controller',
+            'diff_drive_controller',
             '--param-file',
-            os.path.join(pkg_share, "gazebo", "dd_velocity_controller.yaml"),
+            os.path.join(pkg_share, "parameters", "diff_drive_controller.yaml"),
             ],
     )
     
@@ -63,7 +63,7 @@ def generate_launch_description():
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=joint_state_broadcaster_spawner,
-                on_exit=[diff_drive_base_controller_spawner],
+                on_exit=[diff_drive_controller_spawner],
             )
         ),
         Node(
