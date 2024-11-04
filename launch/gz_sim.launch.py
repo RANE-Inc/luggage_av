@@ -1,38 +1,39 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
-
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 from launch.actions import IncludeLaunchDescription
 from launch.actions import RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-import xacro
 
 os.environ["QT_QPA_PLATFORM"]="xcb"
 
 def generate_launch_description():
 
-    pkg_share = os.path.join(get_package_share_directory("luggage_av"))
+    pkg_share = get_package_share_directory("luggage_av")
     
     gz_spawn_entity = Node(
         package='ros_gz_sim',
         executable='create',
         output='screen',
         arguments=[
-            '-topic', 'robot_description',
+            '-topic', '/luggage_av/robot_description',
             '-name',  'luggage_av', 
             '-allow_renaming', 'true'
-        ],
+        ]
     )
 
+    # TODO: Use ros2_control.launch.py instead
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster'],
+        arguments=[
+            'joint_state_broadcaster',
+        ],
+        namespace="luggage_av",
     )
 
     diff_drive_controller_spawner = Node(
@@ -40,11 +41,12 @@ def generate_launch_description():
         executable='spawner',
         arguments=[
             'diff_drive_controller',
-            '--param-file',
-            os.path.join(pkg_share, "parameters", "diff_drive_controller.yaml"),
-            ],
+            '--param-file', os.path.join(pkg_share, "parameters", "diff_drive_controller.yaml"),
+        ],
+        namespace="luggage_av",
     )
     
+
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
@@ -53,6 +55,7 @@ def generate_launch_description():
             launch_arguments=[
                 ("gz_args", [" -r -v 4 empty.sdf"]),
             ],
+            
         ),
         RegisterEventHandler(
             event_handler=OnProcessExit(
@@ -66,27 +69,10 @@ def generate_launch_description():
                 on_exit=[diff_drive_controller_spawner],
             )
         ),
-        Node(
-            package="robot_state_publisher",
-            executable="robot_state_publisher",
-            output="screen",
-            parameters=[{
-                "robot_description": xacro.process_file(os.path.join(pkg_share, "urdf", "robot.urdf.xacro")).toxml(),
-                'use_sim_time': True,
-            }]
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "robot_state_publisher.launch.py")
+            ])
         ),
         gz_spawn_entity,
-        Node(
-            package="joy",
-            executable="game_controller_node",
-        ),
-        Node(
-            package="teleop_twist_joy",
-            executable="teleop_node",
-            parameters=[{
-                "publish_stamped_twist": True,
-                "require_enable_button": False,
-            }],
-            remappings=[("/cmd_vel", "/diff_drive_controller/cmd_vel")],
-        )
     ])
