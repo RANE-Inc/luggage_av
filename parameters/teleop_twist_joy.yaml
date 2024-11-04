@@ -10,6 +10,6 @@ luggage_av:
       axis_angular.yaw: 0
       scale_angular.yaw: 0.5
       scale_angular_turbo.yaw: 1.0
-      inverted_reverse: True
+      inverted_reverse: False
       publish_stamped_twist: True
       frame: "teleop_twist_joy"

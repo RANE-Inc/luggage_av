@@ -33,15 +33,15 @@ luggage_av:
       linear.x.has_jerk_limits: false
       linear.x.max_velocity: 1.0
       linear.x.min_velocity: -1.0
-      linear.x.max_acceleration: 0.1
+      linear.x.max_acceleration: 0.2
       linear.x.max_jerk: 0.0
       linear.x.min_jerk: 0.0
 
       angular.z.has_velocity_limits: true
       angular.z.has_acceleration_limits: true
       angular.z.has_jerk_limits: false
-      angular.z.max_velocity: 1.0
-      angular.z.min_velocity: -1.0
-      angular.z.max_acceleration: 0.1
+      angular.z.max_velocity: 4.0
+      angular.z.min_velocity: -4.0
+      angular.z.max_acceleration: 0.5
       angular.z.max_jerk: 0.0
       angular.z.min_jerk: 0.0
