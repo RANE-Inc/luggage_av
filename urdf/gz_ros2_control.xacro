@@ -28,6 +28,10 @@
     <gazebo>
         <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
             <parameters>$(find luggage_av)/parameters/gz_ros2_control.yaml</parameters>
+            <ros>
+                <namespace>luggage_av</namespace>
+                <remapping>/luggage_av/diff_drive_controller/cmd_vel:=/luggage_av/cmd_vel</remapping>
+            </ros>
         </plugin>
     </gazebo>
 

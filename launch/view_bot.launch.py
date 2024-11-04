@@ -3,35 +3,31 @@ import os
 from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
-from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
+from launch.actions import IncludeLaunchDescription
+from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 import xacro
 
 def generate_launch_description():
 
-    pkg_share = os.path.join(get_package_share_directory('luggage_av'))
+    pkg_share = get_package_share_directory('luggage_av')
+
+
     return LaunchDescription([
-        Node(
-            package="robot_state_publisher",
-            executable="robot_state_publisher",
-            output="screen",
-            parameters=[{
-                "robot_description": xacro.process_file(os.path.join(pkg_share, "urdf", "robot.urdf.xacro")).toxml(),
-                'use_sim_time': False,
-            }]
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "robot_state_publisher.launch.py")
+            ]),
         ),
-        Node(
-            package='rviz2',
-            executable='rviz2',
-            name='rviz2',
-            output='screen',
-            arguments=['-d', os.path.join(pkg_share, 'rviz', 'view_bot.rviz')],
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "rviz.launch.py")
+            ]),
         ),
-        Node(
-            package='joint_state_publisher_gui',
-            executable='joint_state_publisher_gui',
-            name='joint_state_publisher_gui',
-            output='screen',
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "joint_state_publisher_gui.launch.py")
+            ]),
         ),
     ])
