@@ -23,22 +23,27 @@ find_package(ament_cmake REQUIRED)
 foreach(Dependency IN ITEMS ${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
-
+include_directories(${Protobuf_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # COMPILE
-# TODO: Add protobuf_generate_cpp
-
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_commands.proto ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_states.proto)
+message(NOTICE ${PROTO_SRCS})
+message(NOTICE ${PROTO_HDRS})
 add_library(
   luggage_av
   SHARED
   hardware_interface/src/luggage_av_hardware_interface.cpp
   hardware_interface/src/cobs.c
-  hardware_interface/src/proto/wheel_commands.pb.cc
+  ${PROTO_SRCS}
 )
+
 target_compile_features(luggage_av PUBLIC cxx_std_17)
+
 target_include_directories(luggage_av PUBLIC
-$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware_interface/include>
-$<INSTALL_INTERFACE:include/luggage_av>
+  $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/hardware_interface/include>
+  $<INSTALL_INTERFACE:include/luggage_av>
+  ${Protobuf_INCLUDE_DIRS}
 )
 
 ament_target_dependencies(
