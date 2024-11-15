@@ -8,6 +8,7 @@ namespace luggage_av {
         double lin_vel_max = 1.0;
         int32_t hw_cmd_min = -8312;
         int32_t hw_cmd_max = 8312;
+        uint32_t enc_cpr = 109809;
     } luggage_av_default_parameters;
 
 }  // namespace luggage_av

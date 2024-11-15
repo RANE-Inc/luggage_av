@@ -18,6 +18,8 @@ private:
     double lin_vel_min_;
     double lin_vel_max_;
 
+    uint32_t enc_cpr_;
+
     struct Wheel {
         std::string velocity_command_interface_name;
         std::string position_state_interface_name;
