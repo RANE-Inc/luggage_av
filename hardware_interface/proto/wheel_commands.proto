@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package luggage_av;
+package carry_my_luggage;
 
 message WheelCommands {
     sint32 velocity_left = 1;

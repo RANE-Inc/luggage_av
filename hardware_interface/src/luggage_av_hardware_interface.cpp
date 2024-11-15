@@ -3,7 +3,7 @@
 #include "hardware_interface/lexical_casts.hpp"
 
 #include "defaults.hpp"
-#include "proto/wheel_commands.pb.h"
+#include "wheel_commands.pb.h"
 #include "cobs.h"
 
 #include <fcntl.h>
@@ -134,7 +134,7 @@ namespace luggage_av {
     hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_configure(const rclcpp_lifecycle::State& /*previous_state*/) {
         // TODO: Setup communication with I/O processor
 
-        poll_fd_.fd = open(dev_, O_RDWR);
+        poll_fd_.fd = open(dev_, O_RDWR | O_NOCTTY);
 
         if(poll_fd_.fd < 0) {
             RCLCPP_ERROR(get_logger(), "Unable to open %s", dev_);
@@ -194,15 +194,13 @@ namespace luggage_av {
         set_state(wheel_R_.velocity_state_interface_name, get_command(wheel_R_.velocity_command_interface_name));
 
         return hardware_interface::return_type::OK;
-
     }
 
-    WheelCommands wc_msg;
-    std::string wh_msg;
+    carry_my_luggage::WheelCommands wc_msg;
+    std::string wc_msg_str;
     uint8_t out_buf[256];
 
     hardware_interface::return_type LuggageAVHardawreInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
-        // TODO: Get commands from commands interfaces and write to I/O processor
 
         // 1. Read the commands from WheelInterfaces.velocity_commands with get_command()
         // 2. Update msg object
@@ -213,12 +211,12 @@ namespace luggage_av {
         // wc_msg.set_velocity_right(get_command(wheel_R_.velocity_command_interface_name)*1000);
         
         // // // 3. encode protobuf message
-        wc_msg.SerializeToString(&wh_msg);
+        wc_msg.SerializeToString(&wc_msg_str);
     
         // 4. TODO: CRC
         // 5. Encode cobs
                                                                 // TODO: Find out why out_buf.size() is not available
-        cobs_encode_result encode_result = cobs_encode(&out_buf, 256, wh_msg.c_str(), wh_msg.size());
+        cobs_encode_result encode_result = cobs_encode(out_buf, 256, wc_msg_str.c_str(), wc_msg_str.size());
         
         if(encode_result.status != cobs_encode_status::COBS_ENCODE_OK) {
             if(encode_result.status & cobs_encode_status::COBS_ENCODE_NULL_POINTER) {
@@ -245,7 +243,7 @@ namespace luggage_av {
         
         // 7. Write to poll_fd_.fd
         // TODO: Check number of bytes written
-        ::write(poll_fd_.fd, &out_buf, encode_result.out_len+1);
+        ::write(poll_fd_.fd, out_buf, encode_result.out_len+1);
 
         return hardware_interface::return_type::OK;
     }
