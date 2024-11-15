@@ -4,11 +4,14 @@
 
 #include "defaults.hpp"
 #include "wheel_commands.pb.h"
+#include "wheel_states.pb.h"
 #include "cobs.h"
 
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstdint>
+#include <cmath>
+#include <termios.h>
 
 
 namespace luggage_av {
@@ -118,7 +121,13 @@ namespace luggage_av {
             hw_cmd_max_ = luggage_av_default_parameters.hw_cmd_max;
         }
 
-        // TODO: Encoder steps per rotation parameter
+        it = get_hardware_info().hardware_parameters.find("encoder_counts_per_revolution");
+        if(it != get_hardware_info().hardware_parameters.end()) {
+            enc_cpr_ = hardware_interface::stod(it->second);
+        }
+        else {
+            enc_cpr_ = luggage_av_default_parameters.enc_cpr;
+        }
 
         wheel_L_.velocity_command_interface_name = info_.joints[0].name + "/velocity";
         wheel_L_.position_state_interface_name = info_.joints[0].name + "/position";
@@ -141,6 +150,11 @@ namespace luggage_av {
             
             return hardware_interface::CallbackReturn::ERROR;
         }
+
+        // TODO: TERMIOS configuration
+        // tcflush(poll_fd_.fd, TCIOFLUSH);
+
+        poll_fd_.events = POLLIN;
 
         RCLCPP_INFO(get_logger(), "Successfully opened %s", dev_);
         return hardware_interface::CallbackReturn::SUCCESS;
@@ -187,11 +201,107 @@ namespace luggage_av {
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
+    uint8_t in_buf[1024];
+    uint8_t ws_msg_buf[256];
+    carry_my_luggage::WheelStates ws_msg;
+
     hardware_interface::return_type LuggageAVHardawreInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
         // TODO: Read from I/O processor and update state interfaces
 
-        set_state(wheel_L_.velocity_state_interface_name, get_command(wheel_L_.velocity_command_interface_name));
-        set_state(wheel_R_.velocity_state_interface_name, get_command(wheel_R_.velocity_command_interface_name));
+        // 1. Poll fd to see if data can be read
+        int fd_ready = poll(&poll_fd_, 1, -1); // TODO: decide on a timeout
+
+        // 2. if yes, read up to buffer length
+        if(fd_ready < 0) {
+            // error
+            // TODO: BETTER LOGGING
+
+            RCLCPP_ERROR(get_logger(), "Error when polling fd");
+
+            return hardware_interface::return_type::ERROR;
+        }
+        if(fd_ready == 0) {
+            // timeout
+            // TODO: BETTER LOGGING
+
+            printf("polling fd timed out");
+
+            return hardware_interface::return_type::OK;
+        }
+        ssize_t bytes_read = ::read(poll_fd_.fd, in_buf, 256);
+
+        // printf("Read %ld bytes\n", bytes_read);
+        // for(ssize_t i = 0; i < bytes_read; i++) {
+        //     printf("%d, ", in_buf[i]);
+        // }
+        // printf("\n");
+
+        // 3. assume multiple messages in buffer, skip over until you get the last message
+        ssize_t last2_zeros[2]{-2,-1};
+        for(ssize_t i = 0; i < bytes_read; i++) {
+            if(in_buf[i] == '\0') {
+                last2_zeros[0] = last2_zeros[1];
+                last2_zeros[1] = i;
+            }
+        }
+
+        // printf("Last 2 zeros at %ld and %ld\n", last2_zeros[0], last2_zeros[1]);
+        
+        if(last2_zeros[0] < 0 || last2_zeros[1] < 0) {
+            // We have to detect full delimiter 0s to make sure we get a complete message
+            // TODO: BETTER LOGGING
+            printf("Couldn't get a full complete message, skipping...\n");
+
+            return hardware_interface::return_type::OK; 
+        }
+
+        // for(ssize_t i = last2_zeros[0]+1; i < last2_zeros[1]; i++) {
+        //     printf("%d, ", in_buf[i]);
+        // }
+        // printf("\n");
+
+        // 3. cobs decode
+        cobs_decode_result decode_result = cobs_decode(ws_msg_buf, 256, in_buf+last2_zeros[0]+1, last2_zeros[1]-last2_zeros[0]-1);
+        
+        if(decode_result.status != cobs_decode_status::COBS_DECODE_OK) {
+            // TODO: Better logging
+
+            switch(decode_result.status) {
+            case cobs_decode_status::COBS_DECODE_NULL_POINTER:
+                RCLCPP_ERROR(get_logger(), "cobs_decode_status::COBS_DECODE_NULL_POINTER");
+                break;
+            case cobs_decode_status::COBS_DECODE_OUT_BUFFER_OVERFLOW:
+                RCLCPP_ERROR(get_logger(), "cobs_decode_status::COBS_DECODE_OUT_BUFFER_OVERFLOW");
+                break;
+            case cobs_decode_status::COBS_DECODE_ZERO_BYTE_IN_INPUT:
+                RCLCPP_ERROR(get_logger(), "cobs_decode_status::COBS_DECODE_ZERO_BYTE_IN_INPUT");
+                break;
+            case cobs_decode_status::COBS_DECODE_INPUT_TOO_SHORT:
+                RCLCPP_ERROR(get_logger(), "cobs_decode_status::COBS_DECODE_INPUT_TOO_SHORT");
+                break;
+            default:
+                RCLCPP_ERROR(get_logger(), "Unknown error during cobs decode");
+        }
+
+            return hardware_interface::return_type::ERROR;
+        }
+        // 4. TODO: CRC
+        // 5. protobuf decode
+        
+        if(!(ws_msg.ParseFromString(std::string((const char *)ws_msg_buf, decode_result.out_len)))) {
+            // TODO: BETTER LOGGING
+            RCLCPP_ERROR(get_logger(), "protobuf parsing resulted in an error");
+
+            return hardware_interface::return_type::ERROR;
+        }
+
+        // 6. set states
+        
+        set_state(wheel_L_.position_state_interface_name, 2 * M_PI * ws_msg.position_left() / enc_cpr_);
+        set_state(wheel_R_.position_state_interface_name, 2 * M_PI * ws_msg.position_right() / enc_cpr_);
+        set_state(wheel_L_.velocity_state_interface_name, 2 * M_PI * ws_msg.velocity_left() / enc_cpr_);
+        set_state(wheel_R_.velocity_state_interface_name, 2 * M_PI * ws_msg.velocity_right() / enc_cpr_);
+
 
         return hardware_interface::return_type::OK;
     }
