@@ -4,6 +4,7 @@
 #include "hardware_interface/system_interface.hpp"
 
 #include <poll.h>
+#include <termios.h>
 
 namespace luggage_av {
 
@@ -11,6 +12,7 @@ class LuggageAVHardawreInterface : public hardware_interface::SystemInterface {
 private:
     char* dev_;
     pollfd poll_fd_;
+    struct termios tty_;
 
     int32_t hw_cmd_min_;
     int32_t hw_cmd_max_;

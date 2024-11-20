@@ -146,13 +146,53 @@ namespace luggage_av {
         poll_fd_.fd = open(dev_, O_RDWR | O_NOCTTY);
 
         if(poll_fd_.fd < 0) {
-            RCLCPP_ERROR(get_logger(), "Unable to open %s", dev_);
+            RCLCPP_ERROR(get_logger(), "Unable to open %s: %i - %s", dev_, errno, strerror(errno));
             
             return hardware_interface::CallbackReturn::ERROR;
         }
 
-        // TODO: TERMIOS configuration
-        // tcflush(poll_fd_.fd, TCIOFLUSH);
+        if(tcgetattr(poll_fd_.fd, &tty_) < 0) {
+            RCLCPP_ERROR(get_logger(), "Error getting termios attributes: %i - %s", errno, strerror(errno));
+
+            return hardware_interface::CallbackReturn::ERROR;
+        }
+
+        // termios control mode flags
+        tty_.c_cflag &= ~PARENB; // Disable parity bit
+        tty_.c_cflag &= ~CSTOPB; // Single stop bit
+        tty_.c_cflag &= ~CSIZE; // Clear all size bits
+        tty_.c_cflag |= CS8; // Set byte size to 8 bits
+        tty_.c_cflag &= ~CRTSCTS; // Disable hardware flow control
+        tty_.c_cflag |= CLOCAL; // Disable modem-specific carrier lines
+        tty_.c_cflag |= CREAD; // Enable Rx
+
+        // termios local mode flags
+        tty_.c_lflag &= ~ICANON; // Disable canonical mode
+        tty_.c_lflag &= ~ECHO; // Disable echo, just in case
+        tty_.c_lflag &= ~ISIG; // Disable interpretation of INTR, QUIT and SUSP
+
+        // termios input mode flags
+        tty_.c_iflag &= ~(IXON | IXOFF | IXANY); // Disable software flow control
+        tty_.c_iflag &= ~( BRKINT | ICRNL | INLCR | INPCK | ISTRIP | PARMRK); // Disable special character handling
+        tty_.c_iflag &= IGNBRK | IGNCR | IGNPAR;// Ignore certain special character effects
+
+        // termios output mode flags
+        tty_.c_oflag &= ~OPOST; // Prevent special interpretation of output bytes (e.g. newline chars)
+        tty_.c_oflag &= ~(ONLCR | OCRNL); // Prevent conversion of \n to \r and vice-versa
+
+        // Read mode
+        tty_.c_cc[VTIME] = 0; // no timeout
+        tty_.c_cc[VMIN] = 0;  // 0 min characters
+        // The read call will immidiately return anything it currently holds in the buffer and not block;
+
+        // Baud rate
+        // TODO: Read from hardware parameters
+        cfsetispeed(&tty_, B115200);
+        cfsetospeed(&tty_, B115200);
+
+        if (tcsetattr(poll_fd_.fd, TCSANOW, &tty_) < 0) {
+           RCLCPP_ERROR(get_logger(), "Error setting termios attributes: %i - %s", errno, strerror(errno));
+        }
 
         poll_fd_.events = POLLIN;
 
