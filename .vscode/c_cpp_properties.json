@@ -1,0 +1,22 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/fufs/Nextcloud/Documents/uOttawa/4000/CEG49123/ros2_ws/install/luggage_av_hardware_interface/include/**",
+        "/opt/ros/jazzy/include/**",
+        "/home/fufs/Nextcloud/Documents/uOttawa/4000/CEG49123/ros2_ws/src/luggage_av_hardware_interface/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
