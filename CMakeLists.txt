@@ -28,8 +28,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 # COMPILE
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_commands.proto ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_states.proto)
-message(NOTICE ${PROTO_SRCS})
-message(NOTICE ${PROTO_HDRS})
+
 add_library(
   luggage_av
   SHARED
