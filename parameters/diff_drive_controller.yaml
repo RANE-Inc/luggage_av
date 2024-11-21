@@ -5,9 +5,9 @@ luggage_av:
       left_wheel_names: ["drive_wheel_L_joint"]
       right_wheel_names: ["drive_wheel_R_joint"]
 
-      wheel_separation: 0.46
+      wheel_separation: 0.54
       #wheels_per_side: 1  # actually 2, but both are controlled by 1 signal
-      wheel_radius: 0.169
+      wheel_radius: 0.1685
 
       wheel_separation_multiplier: 1.0
       left_wheel_radius_multiplier: 1.0
@@ -16,8 +16,8 @@ luggage_av:
       publish_rate: 50.0
       odom_frame_id: odom
       base_frame_id: base_footprint
-      pose_covariance_diagonal : [0.001, 0.001, 0.0, 0.0, 0.0, 0.01]
-      twist_covariance_diagonal: [0.001, 0.0, 0.0, 0.0, 0.0, 0.01]
+      # pose_covariance_diagonal : [0.001, 0.001, 0.0, 0.0, 0.0, 0.01]
+      # twist_covariance_diagonal: [0.001, 0.0, 0.0, 0.0, 0.0, 0.01]
 
       open_loop: false
       enable_odom_tf: true
