@@ -19,7 +19,7 @@ def generate_launch_description():
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "local_teleop_joy.launch.py")
+                os.path.join(pkg_share, "launch", "teleop.launch.py")
             ]),
         ),
     ])
