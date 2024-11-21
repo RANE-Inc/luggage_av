@@ -6,7 +6,7 @@
     <ros2_control name="DriveBaseSystem" type="system">
         <hardware>
             <plugin>luggage_av/LuggageAVHardawreInterface</plugin>
-            <param name="device">/dev/ttyACM0</param>
+            <param name="device">/dev/ttyS0</param>
             <param name="linear_velocity_min">-3.233</param>
             <param name="linear_velocity_max">3.233</param>
             <param name="hardware_command_min">-8312</param>
