@@ -14,20 +14,20 @@
     <xacro:macro name="drive_wheel" params="name">
         <link name="${name}">
             <visual>
-                <origin xyz="0 ${drive_wheel_thickness/2} 0" rpy="-${pi/2} 0 0" />
+                <origin xyz="0 0 0" rpy="-${pi/2} 0 0" />
                 <geometry>
                     <cylinder radius="${drive_wheel_radius}" length="${drive_wheel_thickness}" />
                 </geometry>
                 <material name="wheel_rubber" />
             </visual>
             <collision>
-                <origin xyz="0 ${drive_wheel_thickness/2} 0" rpy="-${pi/2} 0 0" />
+                <origin xyz="0 0 0" rpy="-${pi/2} 0 0" />
                 <geometry>
                     <cylinder radius="${drive_wheel_radius}" length="${drive_wheel_thickness}" />
                 </geometry>
             </collision>
             <xacro:inertial_cylinder mass="2.0" radius="${drive_wheel_radius}" length="${drive_wheel_thickness}">
-                <origin xyz="0 ${drive_wheel_thickness/2} 0" rpy="-${pi/2} 0 0" />
+                <origin xyz="0 0 0" rpy="-${pi/2} 0 0" />
             </xacro:inertial_cylinder>
         </link>
     </xacro:macro>       

@@ -3,8 +3,10 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
+from launch.substitutions import LaunchConfiguration
 from launch.actions import IncludeLaunchDescription
 from launch.actions import RegisterEventHandler
+from launch.actions import DeclareLaunchArgument
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
@@ -14,8 +16,8 @@ os.environ["QT_QPA_PLATFORM"]="xcb"
 def generate_launch_description():
 
     pkg_share = get_package_share_directory("luggage_av")
-    
-    gz_spawn_entity = Node(
+
+    gz_entity_spawner = Node(
         package='ros_gz_sim',
         executable='create',
         output='screen',
@@ -59,7 +61,7 @@ def generate_launch_description():
         ),
         RegisterEventHandler(
             event_handler=OnProcessExit(
-                target_action=gz_spawn_entity,
+                target_action=gz_entity_spawner,
                 on_exit=[joint_state_broadcaster_spawner],
             )
         ),
@@ -72,7 +74,10 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 os.path.join(pkg_share, "launch", "robot_state_publisher.launch.py")
-            ])
+            ]),
+            launch_arguments=[
+                ("sim_mode", "true")
+            ]
         ),
-        gz_spawn_entity,
+        gz_entity_spawner,
     ])
