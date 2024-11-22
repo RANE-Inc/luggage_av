@@ -3,7 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import IncludeLaunchDescription
 from launch.actions import RegisterEventHandler
 from launch.actions import DeclareLaunchArgument
@@ -57,7 +57,7 @@ def generate_launch_description():
                 os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
             ]),
             launch_arguments=[
-                ('gz_args', ['-r -v 4 ', world]),
+                ('gz_args', ['-r -v 4 ', PathJoinSubstitution([pkg_share, 'worlds', world])]),
             ]
         ),
         RegisterEventHandler(
