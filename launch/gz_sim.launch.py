@@ -3,7 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import IncludeLaunchDescription
 from launch.actions import RegisterEventHandler
 from launch.actions import DeclareLaunchArgument
@@ -17,6 +17,8 @@ def generate_launch_description():
 
     pkg_share = get_package_share_directory("luggage_av")
 
+    world = LaunchConfiguration('world')
+
     gz_entity_spawner = Node(
         package='ros_gz_sim',
         executable='create',
@@ -28,16 +30,35 @@ def generate_launch_description():
         ]
     )
 
+    ros_gz_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        parameters=[
+            {"config_file": os.path.join(pkg_share,'parameters','gz_bridge.yaml')},  
+        ],
+    )
+
+    rviz = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "rviz.launch.py")
+            ])
+    )
+
 
     return LaunchDescription([
+        DeclareLaunchArgument(
+            'world',
+            default_value=os.path.join(pkg_share,'worlds','obstacles.world'),
+            description='World to load'
+        ),
+        
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
             ]),
             launch_arguments=[
-                ("gz_args", [" -r -v 4 empty.sdf"]),
-            ],
-            
+                ('gz_args', ['-r -v 4 ', PathJoinSubstitution([pkg_share, 'worlds', world])]),
+            ]
         ),
         RegisterEventHandler(
             event_handler=OnProcessExit(
@@ -62,5 +83,7 @@ def generate_launch_description():
                 ("sim_mode", "true")
             ]
         ),
+        ros_gz_bridge,
         gz_entity_spawner,
+        rviz,
     ])
