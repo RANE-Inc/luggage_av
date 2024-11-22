@@ -19,4 +19,13 @@
     <xacro:property name="caster_wheels_F_X_offset" value="0.35" />
     <xacro:property name="caster_wheels_R_X_offset" value="-0.4" />
     
+
+    <!--LIDAR-->
+    
+    <xacro:property name="lidar_pole_height" value="0.293" />
+    <xacro:property name="lidar_pole_width" value="0.0635" />
+    <xacro:property name="lidar_pole_length" value="0.0635" />
+
+    <xacro:property name="lidar_sensor_height" value="0.02794" />
+    <xacro:property name="lidar_sensor_radius" value="0.0635" />
 </robot>

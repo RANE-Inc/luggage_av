@@ -15,6 +15,8 @@ os.environ["QT_QPA_PLATFORM"]="xcb"
 
 def generate_launch_description():
 
+    
+
     pkg_share = get_package_share_directory("luggage_av")
 
     gz_entity_spawner = Node(
@@ -28,6 +30,20 @@ def generate_launch_description():
         ]
     )
 
+    ros_gz_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        parameters=[
+            {"config_file": os.path.join(pkg_share,'parameters','gz_bridge.yaml')},  
+        ],
+    )
+
+    rviz = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "rviz.launch.py")
+            ])
+    )
+
 
     return LaunchDescription([
         IncludeLaunchDescription(
@@ -35,7 +51,7 @@ def generate_launch_description():
                 os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
             ]),
             launch_arguments=[
-                ("gz_args", [" -r -v 4 empty.sdf"]),
+                ("gz_args", [" -r -v 4 ~/dev_eric_walkthrough/src/luggage_av/urdf/obstacles.world"]),
             ],
             
         ),
@@ -62,5 +78,7 @@ def generate_launch_description():
                 ("sim_mode", "true")
             ]
         ),
+        ros_gz_bridge,
         gz_entity_spawner,
+        rviz,
     ])
