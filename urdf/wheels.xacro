@@ -23,7 +23,7 @@
             <collision>
                 <origin xyz="0 0 0" rpy="-${pi/2} 0 0" />
                 <geometry>
-                    <cylinder radius="${drive_wheel_radius}" length="${drive_wheel_thickness}" />
+                    <sphere radius="${drive_wheel_radius}" />
                 </geometry>
             </collision>
             <xacro:inertial_cylinder mass="2.0" radius="${drive_wheel_radius}" length="${drive_wheel_thickness}">
@@ -45,7 +45,7 @@
             <collision>
                 <origin xyz="-${caster_wheel_X_offset} 0 -${caster_wheel_Z_offset}" rpy="-${pi/2} 0 0" />
                 <geometry>
-                    <cylinder radius="${caster_wheel_radius}" length="${caster_wheel_thickness}"/>
+                    <sphere radius="${caster_wheel_radius}"/>
                 </geometry>
             </collision>
             <xacro:inertial_cylinder mass="1.0" radius="${caster_wheel_radius}" length="${caster_wheel_thickness}">
