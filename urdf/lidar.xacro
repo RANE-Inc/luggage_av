@@ -11,14 +11,14 @@
         <color rgba="0.2 0.2 1 1"/>
     </material>
 
-    <xacro:property name="lidar_pole_x_origin" value="${chassis_length/2}" />
-    <xacro:property name="lidar_pole_y_origin" value="${-chassis_width/2}" />
+    <xacro:property name="lidar_pole_x_origin" value="${-chassis_length/2}" />
+    <xacro:property name="lidar_pole_y_origin" value="${chassis_width/2}" />
     <xacro:property name="lidar_pole_z_origin" value="${chassis_height - drive_wheel_radius + chassis_Z_offset}" />
 
     <joint name="lidar_mount_joint" type="fixed">
         <parent link="base_link"/>
         <child link="lidar_mount_link"/>
-        <origin xyz = "${lidar_pole_x_origin-lidar_pole_length/2 + chassis_X_offset} ${lidar_pole_y_origin+lidar_pole_width/2} ${lidar_pole_z_origin + lidar_pole_height/2}"/>
+        <origin xyz = "${lidar_pole_x_origin+lidar_pole_length/2 + chassis_X_offset} ${lidar_pole_y_origin-lidar_pole_width/2} ${lidar_pole_z_origin + lidar_pole_height/2}"/>
     </joint>
 
     <link name="lidar_mount_link">
