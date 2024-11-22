@@ -28,26 +28,6 @@ def generate_launch_description():
         ]
     )
 
-    # TODO: Use ros2_control.launch.py instead
-    joint_state_broadcaster_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'joint_state_broadcaster',
-        ],
-        namespace="luggage_av",
-    )
-
-    diff_drive_controller_spawner = Node(
-        package='controller_manager',
-        executable='spawner',
-        arguments=[
-            'diff_drive_controller',
-            '--param-file', os.path.join(pkg_share, "parameters", "diff_drive_controller.yaml"),
-        ],
-        namespace="luggage_av",
-    )
-    
 
     return LaunchDescription([
         IncludeLaunchDescription(
@@ -62,13 +42,16 @@ def generate_launch_description():
         RegisterEventHandler(
             event_handler=OnProcessExit(
                 target_action=gz_entity_spawner,
-                on_exit=[joint_state_broadcaster_spawner],
-            )
-        ),
-        RegisterEventHandler(
-            event_handler=OnProcessExit(
-                target_action=joint_state_broadcaster_spawner,
-                on_exit=[diff_drive_controller_spawner],
+                on_exit=[
+                    IncludeLaunchDescription(
+                        PythonLaunchDescriptionSource([
+                            os.path.join(pkg_share, "launch", "ros2_control.launch.py")
+                        ]),
+                        launch_arguments=[
+                            ("start_controller", "false"),
+                        ],
+                    )
+                ],
             )
         ),
         IncludeLaunchDescription(
