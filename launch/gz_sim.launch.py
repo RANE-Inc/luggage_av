@@ -15,19 +15,9 @@ os.environ["QT_QPA_PLATFORM"]="xcb"
 
 def generate_launch_description():
 
-    
-
     pkg_share = get_package_share_directory("luggage_av")
 
-    default_world = os.path.join(pkg_share,'worlds','obstacles.world')    
-    
     world = LaunchConfiguration('world')
-
-    world_arg = DeclareLaunchArgument(
-        'world',
-        default_value=default_world,
-        description='World to load'
-        )
 
     gz_entity_spawner = Node(
         package='ros_gz_sim',
@@ -56,13 +46,19 @@ def generate_launch_description():
 
 
     return LaunchDescription([
-        world_arg,
+        DeclareLaunchArgument(
+            'world',
+            default_value=os.path.join(pkg_share,'worlds','obstacles.world'),
+            description='World to load'
+        ),
+        
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
             ]),
-            launch_arguments={'gz_args': ['-r -v4 ',world ]}.items(),
-            
+            launch_arguments=[
+                ('gz_args': ['-r -v 4 ', world]),
+            ]
         ),
         RegisterEventHandler(
             event_handler=OnProcessExit(
