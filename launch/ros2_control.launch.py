@@ -15,7 +15,7 @@ def generate_launch_description():
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[
-            os.path.join(pkg_share, "parameters", "ros2_control.yaml"),
+            os.path.join(pkg_share, "parameters", "controller_manager.yaml"),
         ],
         output="screen",
         namespace="luggage_av",
