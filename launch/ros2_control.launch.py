@@ -3,13 +3,17 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import RegisterEventHandler
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
+from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 
 
 def generate_launch_description():
 
     pkg_share = get_package_share_directory("luggage_av")
+
+    start_controller = LaunchConfiguration("start_controller")
 
     controller_manager = Node(
         package="controller_manager",
@@ -22,7 +26,7 @@ def generate_launch_description():
         remappings=[
             ("/luggage_av/diff_drive_controller/cmd_vel", "/luggage_av/cmd_vel"),
         ],
-        
+        condition=IfCondition(start_controller)
     )
 
     joint_state_broadcaster_spawner = Node(
@@ -44,7 +48,11 @@ def generate_launch_description():
     
 
     return LaunchDescription([
-        # TODO: Only include controller manager if an launch file argument says so
+        DeclareLaunchArgument(
+            "start_controller", 
+            default_value="true"
+        ),
+
         controller_manager,
         joint_state_broadcaster_spawner,
         RegisterEventHandler(
