@@ -13,9 +13,9 @@ luggage_av:
       # ROS Parameters
       use_lifecycle_manager: false
       odom_frame: luggage_av/odom
-      map_frame: map
+      map_frame: luggage_av/map
       base_frame: luggage_av/base_footprint
-      scan_topic: /scan
+      scan_topic: /luggage_av/scan
       use_map_saver: true
       mode: mapping #localization
 
