@@ -142,6 +142,8 @@ Visualization Manager:
           Value: true
         luggage_av/lidar_mount_link:
           Value: true
+        luggage_av/map:
+          Value: true
         luggage_av/odom:
           Value: true
       Marker Scale: 0.30000001192092896
@@ -150,6 +152,8 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
+        luggage_av/map:
+          {}
         luggage_av/odom:
           luggage_av/base_footprint:
             luggage_av/base_link:
@@ -202,7 +206,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /scan
+        Value: /luggage_av/scan
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -250,7 +254,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 10.794958114624023
+      Distance: 12.137475967407227
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
