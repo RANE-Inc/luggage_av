@@ -22,4 +22,9 @@ def generate_launch_description():
                 os.path.join(pkg_share, "launch", "robot_state_publisher.launch.py")
             ]),
         ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "sllidar.launch.py")
+            ]),
+        ),
     ])

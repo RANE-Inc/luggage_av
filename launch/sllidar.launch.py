@@ -17,15 +17,9 @@ def generate_launch_description():
             executable='sllidar_node',
             name='sllidar_node',
             parameters=[
-                {'channel_type':'serial',
-                         'serial_port': '/dev/ttyUSB0', 
-                         'serial_baudrate': 460800, 
-                         'frame_id': 'laser',
-                         'inverted': False, 
-                         'angle_compensate': True, 
-                         'scan_mode': 'Standard'}
+                os.path.join(pkg_share, "parameters", "sllidar.yaml")
             ],
             output='screen',
-            # namespace="luggage_av"
+            namespace="luggage_av"
         ),
     ])
