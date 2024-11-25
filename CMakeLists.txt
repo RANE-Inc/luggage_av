@@ -60,7 +60,7 @@ install(
 )
 
 install(
-  DIRECTORY launch parameters rviz urdf worlds
+  DIRECTORY launch maps parameters rviz urdf worlds
   DESTINATION share/${PROJECT_NAME}
 )
 
