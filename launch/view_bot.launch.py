@@ -24,6 +24,9 @@ def generate_launch_description():
             PythonLaunchDescriptionSource([
                 os.path.join(pkg_share, "launch", "rviz.launch.py")
             ]),
+            launch_arguments=[
+                ("config_file", os.path.join(pkg_share, "rviz", "view_bot.rviz"))
+            ],
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([

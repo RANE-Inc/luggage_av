@@ -23,9 +23,6 @@ def generate_launch_description():
         parameters=[{
             os.path.join(pkg_share, "parameters", "teleop_twist_joy.yaml")
         }],
-        # remappings=[
-        #     ("/cmd_vel", "/luggage_av/cmd_vel"),
-        # ],
         namespace="luggage_av",
     )
     

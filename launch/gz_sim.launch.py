@@ -36,6 +36,7 @@ def generate_launch_description():
         parameters=[
             {"config_file": os.path.join(pkg_share,'parameters','gz_bridge.yaml')},  
         ],
+        namespace="luggage_av"
     )
 
     rviz = IncludeLaunchDescription(
