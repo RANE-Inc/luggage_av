@@ -10,7 +10,8 @@ Panels:
         - /TF1
         - /LaserScan1
         - /Map1
-        - /Map1/Topic1
+        - /Map2
+        - /Map2/Status1
       Splitter Ratio: 0.5
     Tree Height: 775
 Visualization Manager:
@@ -224,13 +225,36 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /map
+        Value: /luggage_av/map
       Update Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /map_updates
+        Value: /luggage_av/map_updates
+      Use Timestamp: false
+      Value: true
+    - Alpha: 0.699999988079071
+      Binary representation: false
+      Binary threshold: 100
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /luggage_av/global_costmap/costmap
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /luggage_av/global_costmap/costmap_updates
       Use Timestamp: false
       Value: true
   Enabled: true
