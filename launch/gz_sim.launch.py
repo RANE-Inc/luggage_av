@@ -57,7 +57,8 @@ def generate_launch_description():
                 os.path.join(pkg_share, "launch", "slam_toolbox.launch.py")
             ]),
             launch_arguments=[
-                ('sim_mode', 'true')
+                ('sim_mode', 'true'),
+                ('map_filename', os.path.join(pkg_share, "maps", "obstacles.yaml"))
             ]
         ),
 

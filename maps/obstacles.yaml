@@ -1,4 +1,4 @@
-image: square_obstacle_world.pgm
+image: obstacles.pgm
 mode: trinary
 resolution: 0.05
 origin: [-4.57, -4.56, 0]
