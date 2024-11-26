@@ -9,8 +9,10 @@ Panels:
         - /RobotModel1
         - /TF1
         - /LaserScan1
+        - /Map1
+        - /Map1/Topic1
       Splitter Ratio: 0.5
-    Tree Height: 788
+    Tree Height: 775
 Visualization Manager:
   Class: ""
   Displays:
@@ -140,6 +142,8 @@ Visualization Manager:
           Value: true
         luggage_av/lidar_mount_link:
           Value: true
+        luggage_av/map:
+          Value: true
         luggage_av/odom:
           Value: true
       Marker Scale: 0.30000001192092896
@@ -148,6 +152,8 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
+        luggage_av/map:
+          {}
         luggage_av/odom:
           luggage_av/base_footprint:
             luggage_av/base_link:
@@ -200,9 +206,32 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /scan
+        Value: /luggage_av/scan
       Use Fixed Frame: true
       Use rainbow: true
+      Value: true
+    - Alpha: 0.699999988079071
+      Binary representation: false
+      Binary threshold: 100
+      Class: rviz_default_plugins/Map
+      Color Scheme: map
+      Draw Behind: false
+      Enabled: true
+      Name: Map
+      Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        Filter size: 10
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /map_updates
+      Use Timestamp: false
       Value: true
   Enabled: true
   Global Options:
@@ -225,7 +254,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 10.794958114624023
+      Distance: 12.137475967407227
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -251,7 +280,7 @@ Window Geometry:
   Height: 1011
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000034b0000039dfc0200000001fb000000100044006900730070006c006100790073010000003b0000039d000000c700ffffff0000042f0000039d00000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
-  Width: 1920
-  X: 117
-  Y: 11
+  QMainWindow State: 000000ff00000000fd00000001000000000000034b00000395fc0200000001fb000000100044006900730070006c006100790073010000003f00000395000000cc00ffffff000003ed0000039500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  Width: 1854
+  X: 66
+  Y: 32

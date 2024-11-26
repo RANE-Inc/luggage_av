@@ -54,6 +54,15 @@ def generate_launch_description():
         
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "slam_toolbox.launch.py")
+            ]),
+            launch_arguments=[
+                ('sim_mode', 'true')
+            ]
+        ),
+
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
                 os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
             ]),
             launch_arguments=[
