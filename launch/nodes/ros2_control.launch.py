@@ -24,6 +24,7 @@ def generate_launch_description():
         output="screen",
         namespace="luggage_av",
         remappings=[
+            # ("/tf", "tf"), # TODO: namespaced_tf
             ("/luggage_av/diff_drive_controller/cmd_vel", "/luggage_av/cmd_vel"),
         ],
         condition=IfCondition(start_controller)
@@ -43,6 +44,10 @@ def generate_launch_description():
             'diff_drive_controller',
             '--param-file', os.path.join(pkg_share, "parameters", "diff_drive_controller.yaml"),
         ],
+        # FIXME: Can't remap this way, need to find a better way
+        # remappings=[
+        #     ("/tf", "/luggage_av/tf"),
+        # ],
         namespace="luggage_av",
     )
     

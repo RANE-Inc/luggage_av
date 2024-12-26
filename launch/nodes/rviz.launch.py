@@ -4,7 +4,6 @@ from ament_index_python.packages import get_package_share_directory
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 
@@ -14,7 +13,7 @@ def generate_launch_description():
     pkg_share = get_package_share_directory('luggage_av')
 
     config_file = LaunchConfiguration("config_file")
-    namespaced_tf = LaunchConfiguration("namespaced_tf")
+    namespace = LaunchConfiguration("namespace")
 
     rviz_node = Node(
         package='rviz2',
@@ -22,22 +21,11 @@ def generate_launch_description():
         name='rviz2',
         output='screen',
         arguments=['-d', PathJoinSubstitution([pkg_share, "rviz", config_file])],
-        namespace="luggage_av",
-        condition=UnlessCondition(namespaced_tf)
+        namespace=namespace,
+        remappings=[('/tf','tf'),('/tf_static','tf_static')], # Remap tf topics to the namespace
     )
 
-    rviz_node_ns_tf = Node(
-        package='rviz2',
-        executable='rviz2',
-        name='rviz2',
-        output='screen',
-        arguments=['-d', PathJoinSubstitution([pkg_share, "rviz", config_file])],
-        remappings=[('/tf', 'tf'), ('/tf_static','tf_static')],
-        namespace="luggage_av",
-        condition=IfCondition(namespaced_tf)
-    )
-
-
+    
     return LaunchDescription([
         DeclareLaunchArgument(
             'config_file',
@@ -45,11 +33,10 @@ def generate_launch_description():
             description="RVIZ configuration file"
         ),
         DeclareLaunchArgument(
-            'namespaced_tf',
-            default_value="false",
-            description="Whether to use namespaced tf topic aka /ns/tf and /ns/tf_static"
-        ), 
+            'namespace',
+            default_value="/luggage_av",
+            description="Namespace of the bot (usually its unique identifier)"
+        ),
 
-        rviz_node,
-        rviz_node_ns_tf
+        rviz_node
     ])
