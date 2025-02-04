@@ -14,17 +14,20 @@ def generate_launch_description():
         executable='joint_state_publisher_gui',
         name='joint_state_publisher_gui',
         output='screen',
-        namespace=namespace,
-        remappings=[('/tf','tf'),('/tf_static','tf_static')], # Remap tf topics to the namespace
+        namespace=["/", namespace],
+        remappings=[
+            ('/tf','tf'),
+            ('/tf_static','tf_static'),
+        ],
     )
 
 
     return LaunchDescription([
         DeclareLaunchArgument(
             'namespace',
-            default_value="/luggage_av",
+            default_value="luggage_av",
             description="Namespace of the bot (usually its unique identifier)"
-        ), 
+        ),
 
         jsp_gui_node
     ])

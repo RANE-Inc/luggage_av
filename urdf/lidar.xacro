@@ -84,8 +84,8 @@
                     <max>12</max>
                 </range>
             </lidar>
-            <topic>/luggage_av/scan</topic>
-            <gz_frame_id>luggage_av/base_laser</gz_frame_id>
+            <topic>scan</topic>
+            <gz_frame_id>$(arg namespace)/base_laser</gz_frame_id>
         </sensor>
     </gazebo>
 

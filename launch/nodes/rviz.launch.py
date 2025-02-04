@@ -21,20 +21,23 @@ def generate_launch_description():
         name='rviz2',
         output='screen',
         arguments=['-d', PathJoinSubstitution([pkg_share, "rviz", config_file])],
-        namespace=namespace,
-        remappings=[('/tf','tf'),('/tf_static','tf_static')], # Remap tf topics to the namespace
+        namespace=["/", namespace],
+        remappings=[
+            ('/tf','tf'),
+            ('/tf_static','tf_static'),
+        ],
     )
 
-    
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'config_file',
-            default_value=os.path.join(pkg_share, "rviz", "dev.rviz"),
+            default_value=os.path.join(pkg_share, "configs", "dev.rviz"),
             description="RVIZ configuration file"
         ),
         DeclareLaunchArgument(
             'namespace',
-            default_value="/luggage_av",
+            default_value="luggage_av",
             description="Namespace of the bot (usually its unique identifier)"
         ),
 

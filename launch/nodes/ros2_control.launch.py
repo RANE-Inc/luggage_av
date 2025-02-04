@@ -14,6 +14,7 @@ def generate_launch_description():
     pkg_share = get_package_share_directory("luggage_av")
 
     start_controller = LaunchConfiguration("start_controller")
+    namespace = LaunchConfiguration("namespace")
 
     controller_manager = Node(
         package="controller_manager",
@@ -22,19 +23,18 @@ def generate_launch_description():
             os.path.join(pkg_share, "parameters", "controller_manager.yaml"),
         ],
         output="screen",
-        namespace="luggage_av",
-        remappings=[
-            # ("/tf", "tf"), # TODO: namespaced_tf
-            ("/luggage_av/diff_drive_controller/cmd_vel", "/luggage_av/cmd_vel"),
-        ],
+        namespace=["/", namespace],
         condition=IfCondition(start_controller)
     )
 
     joint_state_broadcaster_spawner = Node(
         package='controller_manager',
         executable='spawner',
-        arguments=['joint_state_broadcaster'],
-        namespace="luggage_av",
+        arguments=[
+            "joint_state_broadcaster",
+            "--controller-ros-args", "--remap /tf:=tf"
+        ],
+        namespace=["/", namespace]
     )
 
     diff_drive_controller_spawner = Node(
@@ -43,19 +43,21 @@ def generate_launch_description():
         arguments=[
             'diff_drive_controller',
             '--param-file', os.path.join(pkg_share, "parameters", "diff_drive_controller.yaml"),
+            "--controller-ros-args", "--remap /tf:=tf --remap diff_drive_controller/cmd_vel:=cmd_vel",
         ],
-        # FIXME: Can't remap this way, need to find a better way
-        # remappings=[
-        #     ("/tf", "/luggage_av/tf"),
-        # ],
-        namespace="luggage_av",
+        namespace=["/", namespace]
     )
-    
+
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            "start_controller", 
+            "start_controller",
             default_value="true"
+        ),
+        DeclareLaunchArgument(
+            "namespace",
+            default_value="luggage_av",
+            description="Namespace of the bot (usually its unique identifier)"
         ),
 
         controller_manager,

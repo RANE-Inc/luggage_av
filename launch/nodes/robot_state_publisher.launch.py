@@ -13,9 +13,9 @@ def generate_launch_description():
 
     sim_mode = LaunchConfiguration("sim_mode")
     namespace = LaunchConfiguration("namespace")
-    
+
     rsp_node = Node(
-        name="robot_state_publisher", 
+        name="robot_state_publisher",
         package="robot_state_publisher",
         executable="robot_state_publisher",
         output="screen",
@@ -25,30 +25,30 @@ def generate_launch_description():
                     [
                         "xacro.process_file('",
                         os.path.join(pkg_share, "urdf", "robot.urdf.xacro"),
-                        "',mappings={'sim_mode':'",
-                        EqualsSubstitution(sim_mode, 'true'), # Sanitize input
+                        "',mappings={'sim_mode':'", EqualsSubstitution(sim_mode, "true"), # Sanitize input
+                        "','namespace':'", namespace, # FIXME: CODE INJECTION (SCARY!)
                         "'}).toxml()"
                     ],
-                    ['xacro']
+                    ["xacro"]
                 ),
-                "frame_prefix": IfElseSubstitution(OrSubstitution(EqualsSubstitution(namespace, "/"), EqualsSubstitution(namespace, "")), "", [namespace, "/"]),
+                "frame_prefix": IfElseSubstitution(EqualsSubstitution(namespace, ""), "", [namespace, "/"]), # TODO: Remove prefix to allow for stricter namespace passing
             },
-            os.path.join(pkg_share, "parameters", "robot_state_publisher.yaml"),    
+            os.path.join(pkg_share, "parameters", "robot_state_publisher.yaml"),
         ],
-        namespace=namespace,
-        remappings=[('/tf','tf'),('/tf_static','tf_static')], # Remap tf topics to the namespace
+        namespace=["/", namespace],
+        remappings=[("/tf","tf"),("/tf_static","tf_static")], # Remap tf topics to the namespace
     )
-    
+
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            "sim_mode", 
+            "sim_mode",
             default_value="false",
             description="Set to true when running in a simulator"
         ),
         DeclareLaunchArgument(
-            'namespace',
-            default_value="/luggage_av",
+            "namespace",
+            default_value="luggage_av",
             description="Namespace of the bot (usually its unique identifier)"
         ),
 

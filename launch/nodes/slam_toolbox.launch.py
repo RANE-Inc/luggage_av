@@ -3,8 +3,7 @@ import os
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, EmitEvent, RegisterEventHandler, LogInfo
-from launch.conditions import IfCondition, UnlessCondition
-from launch.substitutions import LaunchConfiguration
+from launch.substitutions import LaunchConfiguration, IfElseSubstitution, EqualsSubstitution
 from launch_ros.actions import LifecycleNode
 from launch_ros.events.lifecycle import ChangeState
 from launch_ros.event_handlers import OnStateTransition
@@ -18,72 +17,54 @@ def generate_launch_description():
     pkg_share = get_package_share_directory("luggage_av")
 
     sim_mode = LaunchConfiguration("sim_mode")
-    map_filename = LaunchConfiguration('map_filename')
-    namespaced_tf = LaunchConfiguration("namespaced_tf")
+    map_filename = LaunchConfiguration("map_filename")
+    namespace = LaunchConfiguration("namespace")
 
+    # TODO: map files from world argument
     slam_toolbox = LifecycleNode(
         parameters=[
-          os.path.join(pkg_share, 'parameters', 'slam_toolbox.yaml'),
+          os.path.join(pkg_share, "parameters", "slam_toolbox.yaml"),
           {
-            'use_sim_time': sim_mode,
+            "use_sim_time": sim_mode,
             # "map_file_name": map_filename,
+            "odom_frame": IfElseSubstitution(EqualsSubstitution(namespace, ""), "odom", [namespace, "/odom"]), # TODO: Remove prefix to allow for stricter namespace passing
+            "map_frame": IfElseSubstitution(EqualsSubstitution(namespace, ""), "map", [namespace, "/map"]), # TODO: Remove prefix to allow for stricter namespace passing
+            "base_frame": IfElseSubstitution(EqualsSubstitution(namespace, ""), "base_footprint", [namespace, "/base_footprint"]), # TODO: Remove prefix to allow for stricter namespace passing
           },
         ],
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',       # TODO check if online_async_launch
-        name='slam_toolbox',
-        output='screen',
-        namespace='luggage_av',
+        package="slam_toolbox",
+        executable="async_slam_toolbox_node",       # TODO: check if online_async_launch
+        name="slam_toolbox",
+        output="screen",
+        namespace=["/", namespace],
         remappings=[
-            ('/map','/luggage_av/map'),
-            ('/map_updates','/luggage_av/map_updates'),
-            ('/map_metadata', '/luggage_av/map_metadata'),
+            ("/tf", "tf"),
+            ("/tf_static", "tf_static"),
+            ("/scan", "scan"),
+            ("/map", "map"),
+            ("/map_updates", "map_updates"),
+            ("/map_metadata", "map_metadata"),
         ],
-        condition=UnlessCondition(namespaced_tf)
     )
 
-    slam_toolbox_ns_tf = LifecycleNode(
-        parameters=[
-          os.path.join(pkg_share, 'parameters', 'slam_toolbox.yaml'),
-          {
-            'use_sim_time': sim_mode,
-            # "map_file_name": map_filename,
-          },
-        ],
-        package='slam_toolbox',
-        executable='async_slam_toolbox_node',
-        name='slam_toolbox',
-        output='screen',
-        namespace='luggage_av',
-        remappings=[
-            ('/tf', 'tf'), 
-            ('/tf_static', 'tf_static'),
-            ('/map','/luggage_av/map'),
-            ('/map_updates','/luggage_av/map_updates'),
-            ('/map_metadata', '/luggage_av/map_metadata'),
-        ],
-        condition=IfCondition(namespaced_tf)
-    )
-    
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            'map_filename',
+            "map_filename",
             default_value="",
-            description='Full path to the parameters file to use for Slam Toolbox'
+            description="Full path to the parameters file to use for Slam Toolbox"
         ),
         DeclareLaunchArgument(
-            "sim_mode", 
+            "sim_mode",
             default_value="false"
         ),
         DeclareLaunchArgument(
-            'namespaced_tf',
-            default_value="false",
-            description="Whether to use namespaced tf topic aka /ns/tf and /ns/tf_static"
-        ), 
+            "namespace",
+            default_value="luggage_av",
+            description="Namespace of the bot (usually its unique identifier)"
+        ),
 
         slam_toolbox,
-        slam_toolbox_ns_tf,
 
         EmitEvent(
             event=ChangeState(

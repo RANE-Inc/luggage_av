@@ -15,12 +15,14 @@ def generate_launch_description():
 
     namespace = LaunchConfiguration("namespace")
 
+
     return LaunchDescription([
         DeclareLaunchArgument(
             'namespace',
-            default_value="/luggage_av",
+            default_value="luggage_av",
             description="Namespace of the bot (usually its unique identifier)"
-        ), 
+        ),
+
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
                 os.path.join(pkg_share, "launch", "nodes", "robot_state_publisher.launch.py")
@@ -34,7 +36,7 @@ def generate_launch_description():
                 os.path.join(pkg_share, "launch", "nodes", "rviz.launch.py")
             ]),
             launch_arguments=[
-                ("config_file", os.path.join(pkg_share, "rviz", "view_bot.rviz")),
+                ("config_file", os.path.join(pkg_share, "configs", "view_bot.rviz")),
                 ("namespace", namespace),
             ],
         ),

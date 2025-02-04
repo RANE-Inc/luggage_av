@@ -45,7 +45,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /luggage_av/robot_description
+        Value: robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -57,6 +57,11 @@ Visualization Manager:
           Alpha: 1
           Show Axes: false
           Show Trail: false
+        base_laser:
+          Alpha: 1
+          Show Axes: false
+          Show Trail: false
+          Value: true
         base_link:
           Alpha: 1
           Show Axes: false
@@ -96,11 +101,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-        laser:
-          Alpha: 1
-          Show Axes: false
-          Show Trail: false
-          Value: true
         lidar_mount_link:
           Alpha: 1
           Show Axes: false
@@ -121,31 +121,29 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        luggage_av/base_footprint:
+        lmao/base_footprint:
           Value: true
-        luggage_av/base_link:
+        lmao/base_laser:
           Value: true
-        luggage_av/caster_wheel_FL:
+        lmao/base_link:
           Value: true
-        luggage_av/caster_wheel_FR:
+        lmao/caster_wheel_FL:
           Value: true
-        luggage_av/caster_wheel_RL:
+        lmao/caster_wheel_FR:
           Value: true
-        luggage_av/caster_wheel_RR:
+        lmao/caster_wheel_RL:
           Value: true
-        luggage_av/chassis:
+        lmao/caster_wheel_RR:
           Value: true
-        luggage_av/drive_wheel_L:
+        lmao/chassis:
           Value: true
-        luggage_av/drive_wheel_R:
+        lmao/drive_wheel_L:
           Value: true
-        luggage_av/laser:
+        lmao/drive_wheel_R:
           Value: true
-        luggage_av/lidar_mount_link:
+        lmao/lidar_mount_link:
           Value: true
-        luggage_av/map:
-          Value: true
-        luggage_av/odom:
+        lmao/odom:
           Value: true
       Marker Scale: 0.30000001192092896
       Name: TF
@@ -153,27 +151,25 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        luggage_av/map:
-          {}
-        luggage_av/odom:
-          luggage_av/base_footprint:
-            luggage_av/base_link:
-              luggage_av/caster_wheel_FL:
+        lmao/odom:
+          lmao/base_footprint:
+            lmao/base_link:
+              lmao/caster_wheel_FL:
                 {}
-              luggage_av/caster_wheel_FR:
+              lmao/caster_wheel_FR:
                 {}
-              luggage_av/caster_wheel_RL:
+              lmao/caster_wheel_RL:
                 {}
-              luggage_av/caster_wheel_RR:
+              lmao/caster_wheel_RR:
                 {}
-              luggage_av/chassis:
+              lmao/chassis:
                 {}
-              luggage_av/drive_wheel_L:
+              lmao/drive_wheel_L:
                 {}
-              luggage_av/drive_wheel_R:
+              lmao/drive_wheel_R:
                 {}
-              luggage_av/lidar_mount_link:
-                luggage_av/laser:
+              lmao/lidar_mount_link:
+                lmao/base_laser:
                   {}
       Update Interval: 0
       Value: true
@@ -207,7 +203,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /luggage_av/scan
+        Value: scan
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
@@ -225,13 +221,13 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /luggage_av/map
+        Value: map
       Update Topic:
         Depth: 5
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /luggage_av/map_updates
+        Value: map_updates
       Use Timestamp: false
       Value: true
     - Alpha: 0.699999988079071
@@ -278,7 +274,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 12.137475967407227
+      Distance: 4.365055084228516
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -306,5 +302,5 @@ Window Geometry:
   Hide Right Dock: false
   QMainWindow State: 000000ff00000000fd00000001000000000000034b00000395fc0200000001fb000000100044006900730070006c006100790073010000003f00000395000000cc00ffffff000003ed0000039500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
   Width: 1854
-  X: 66
+  X: 900
   Y: 32
