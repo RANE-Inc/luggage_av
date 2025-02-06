@@ -13,7 +13,6 @@
     use_lifecycle_manager: false
     scan_topic: "scan"
     use_map_saver: true
-    mode: mapping #localization
 
     # if you'd like to immediately start continuing a map at a given pose
     # or at the dock, but they are mutually exclusive, if pose is given

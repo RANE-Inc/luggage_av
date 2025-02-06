@@ -16,6 +16,7 @@ def generate_launch_description():
 
     pkg_share = get_package_share_directory("luggage_av")
 
+    slam_mode = LaunchConfiguration("slam_mode")
     sim_mode = LaunchConfiguration("sim_mode")
     map_filename = LaunchConfiguration("map_filename")
     namespace = LaunchConfiguration("namespace")
@@ -25,8 +26,9 @@ def generate_launch_description():
         parameters=[
           os.path.join(pkg_share, "parameters", "slam_toolbox.yaml"),
           {
+            "mode": slam_mode,
             "use_sim_time": sim_mode,
-            # "map_file_name": map_filename,
+            "map_file_name": map_filename,
             "odom_frame": IfElseSubstitution(EqualsSubstitution(namespace, ""), "odom", [namespace, "/odom"]), # TODO: Remove prefix to allow for stricter namespace passing
             "map_frame": IfElseSubstitution(EqualsSubstitution(namespace, ""), "map", [namespace, "/map"]), # TODO: Remove prefix to allow for stricter namespace passing
             "base_frame": IfElseSubstitution(EqualsSubstitution(namespace, ""), "base_footprint", [namespace, "/base_footprint"]), # TODO: Remove prefix to allow for stricter namespace passing
@@ -50,9 +52,14 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument(
+            "slam_mode",
+            default_value="localization",
+            description="A mode the slam_toolbox will run in (either 'mapping' or 'localization')"
+        ),
+        DeclareLaunchArgument(
             "map_filename",
             default_value="",
-            description="Full path to the parameters file to use for Slam Toolbox"
+            description="Path and filenames of the map files (.posegraph and .data). All files should be in the same directory. Do not include file extension in the name"
         ),
         DeclareLaunchArgument(
             "sim_mode",

@@ -1,6 +1,6 @@
 Panels:
   - Class: rviz_common/Displays
-    Help Height: 78
+    Help Height: 70
     Name: Displays
     Property Tree Widget:
       Expanded:
@@ -11,9 +11,10 @@ Panels:
         - /LaserScan1
         - /Map1
         - /Map2
-        - /Map2/Status1
       Splitter Ratio: 0.5
-    Tree Height: 775
+    Tree Height: 363
+  - Class: slam_toolbox::SlamToolboxPlugin
+    Name: SlamToolboxPlugin
 Visualization Manager:
   Class: ""
   Displays:
@@ -121,29 +122,31 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
-        lmao/base_footprint:
+        luggage_av/base_footprint:
           Value: true
-        lmao/base_laser:
+        luggage_av/base_laser:
           Value: true
-        lmao/base_link:
+        luggage_av/base_link:
           Value: true
-        lmao/caster_wheel_FL:
+        luggage_av/caster_wheel_FL:
           Value: true
-        lmao/caster_wheel_FR:
+        luggage_av/caster_wheel_FR:
           Value: true
-        lmao/caster_wheel_RL:
+        luggage_av/caster_wheel_RL:
           Value: true
-        lmao/caster_wheel_RR:
+        luggage_av/caster_wheel_RR:
           Value: true
-        lmao/chassis:
+        luggage_av/chassis:
           Value: true
-        lmao/drive_wheel_L:
+        luggage_av/drive_wheel_L:
           Value: true
-        lmao/drive_wheel_R:
+        luggage_av/drive_wheel_R:
           Value: true
-        lmao/lidar_mount_link:
+        luggage_av/lidar_mount_link:
           Value: true
-        lmao/odom:
+        luggage_av/map:
+          Value: true
+        luggage_av/odom:
           Value: true
       Marker Scale: 0.30000001192092896
       Name: TF
@@ -151,25 +154,27 @@ Visualization Manager:
       Show Axes: true
       Show Names: true
       Tree:
-        lmao/odom:
-          lmao/base_footprint:
-            lmao/base_link:
-              lmao/caster_wheel_FL:
+        luggage_av/map:
+          {}
+        luggage_av/odom:
+          luggage_av/base_footprint:
+            luggage_av/base_link:
+              luggage_av/caster_wheel_FL:
                 {}
-              lmao/caster_wheel_FR:
+              luggage_av/caster_wheel_FR:
                 {}
-              lmao/caster_wheel_RL:
+              luggage_av/caster_wheel_RL:
                 {}
-              lmao/caster_wheel_RR:
+              luggage_av/caster_wheel_RR:
                 {}
-              lmao/chassis:
+              luggage_av/chassis:
                 {}
-              lmao/drive_wheel_L:
+              luggage_av/drive_wheel_L:
                 {}
-              lmao/drive_wheel_R:
+              luggage_av/drive_wheel_R:
                 {}
-              lmao/lidar_mount_link:
-                lmao/base_laser:
+              luggage_av/lidar_mount_link:
+                luggage_av/base_laser:
                   {}
       Update Interval: 0
       Value: true
@@ -274,7 +279,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 4.365055084228516
+      Distance: 13.234740257263184
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -289,7 +294,7 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.6803980469703674
+      Pitch: 0.6903980374336243
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
       Yaw: 1.235398292541504
@@ -300,7 +305,9 @@ Window Geometry:
   Height: 1011
   Hide Left Dock: false
   Hide Right Dock: false
-  QMainWindow State: 000000ff00000000fd00000001000000000000034b00000395fc0200000001fb000000100044006900730070006c006100790073010000003f00000395000000cc00ffffff000003ed0000039500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
-  Width: 1854
+  QMainWindow State: 000000ff00000000fd00000001000000000000034b00000395fc0200000002fb000000100044006900730070006c006100790073010000003f000001f1000000cc00fffffffb000000220053006c0061006d0054006f006f006c0062006f00780050006c007500670069006e01000002360000019e0000019e00ffffff0000042f0000039500000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
+  SlamToolboxPlugin:
+    collapsed: false
+  Width: 1920
   X: 900
   Y: 32

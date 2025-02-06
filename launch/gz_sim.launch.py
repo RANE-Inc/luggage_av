@@ -48,7 +48,7 @@ def generate_launch_description():
                 ("config_file", os.path.join(pkg_share, "configs", "gz_bridge.yaml")),
                 ("namespace", namespace), # TODO: Why didn't I have to add slash in the beginning here??? It allows me to add a slash if I pass it from the CLI
                 # ("bridge_params", os.path.join(pkg_share, "parameters", "gz_bridge.yaml")),
-                ("world", ""),
+                ("world", world), # TODO: resets the "world" launch argument for all nodes. Possibly related to comment above
                 ("topic", [namespace, "/robot_description"]),
                 ("name", "luggage_av"),
                 ("allow_renaming", "true"),
@@ -79,8 +79,9 @@ def generate_launch_description():
             ]),
             launch_arguments=[
                 ("sim_mode", "true"),
-                ("map_filename", [PathJoinSubstitution([pkg_share, "worlds", world]), ".yaml"]),
+                ("map_filename", PathJoinSubstitution([pkg_share, "maps", world])),
                 ("namespace", namespace),
+                ("slam_mode", "localization"),
             ]
         ),
         IncludeLaunchDescription(
