@@ -93,4 +93,14 @@ def generate_launch_description():
                 ("namespace", namespace),
             ]
         ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource([
+        #         os.path.join(pkg_share, "launch", "navigation_launch.py")
+        #     ]),
+        #     launch_arguments=[
+        #         ("namespace", namespace),
+        #         ("use_sim_time", "true"),
+        #         ("params_file", PathJoinSubstitution([pkg_share, "parameters", "nav2_params.yaml"])),
+        #     ]
+        # ),
     ])
