@@ -16,33 +16,28 @@ def generate_launch_description():
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            'namespace',
+            "namespace",
             default_value="luggage_av",
             description="Namespace of the bot (usually its unique identifier)"
         ),
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "ros2_control.launch.py")
+                os.path.join(pkg_share, "launch", "teleop.launch.py")
             ]),
             launch_arguments=[
                 ("namespace", namespace),
             ],
         ),
+
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "robot_state_publisher.launch.py")
+                os.path.join(pkg_share, "launch", "nodes", "nav2.launch.py")
             ]),
             launch_arguments=[
                 ("namespace", namespace),
             ],
         ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "sllidar.launch.py")
-            ]),
-            launch_arguments=[
-                ("namespace", namespace),
-            ],
-        ),
+
+        # TODO: TouchUI
     ])

@@ -1,3 +1,4 @@
+# Localization (not used)
 amcl:
   ros__parameters:
     alpha1: 0.2
@@ -242,7 +243,7 @@ global_costmap:
         enabled: True
         observation_sources: scan
         scan:
-          topic: scan
+          topic: /luggage_av/scan # TODO: dynamic
           max_obstacle_height: 2.0
           clearing: True
           marking: True
