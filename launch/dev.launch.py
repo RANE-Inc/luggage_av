@@ -35,7 +35,6 @@ def generate_launch_description():
             launch_arguments=[
                 ("namespace", namespace),
             ],
-            condition=IfCondition(local_dev)
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
@@ -44,5 +43,6 @@ def generate_launch_description():
             launch_arguments=[
                 ("namespace", namespace),
             ],
+            condition=IfCondition(local_dev)
         ),
     ])
