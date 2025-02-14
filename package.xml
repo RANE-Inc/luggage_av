@@ -23,6 +23,8 @@
   <exec_depend>diff_drive_controller</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>navigation2</exec_depend>
   
   <test_depend>rviz2</test_depend>
   <test_depend>joint_state_publisher_gui</test_depend>

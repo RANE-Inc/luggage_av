@@ -43,11 +43,11 @@
 
     <joint name="laser_joint" type="fixed">
         <parent link="lidar_mount_link"/>
-        <child link="laser"/>
+        <child link="base_laser"/>
         <origin xyz = "0 0 ${(lidar_pole_height+lidar_sensor_height)/2}"/> <!--half the height of the mount + half the height of the lidar itself -->
     </joint>
 
-    <link name="laser">
+    <link name="base_laser">
         <visual>
             <geometry>
                 <cylinder radius="${lidar_sensor_radius}" length="${lidar_sensor_radius}"/>
@@ -64,10 +64,10 @@
         </xacro:inertial_cylinder>
     </link>
 
-    <gazebo reference="laser">
+    <gazebo reference="base_laser">
         <material>Gazebo/blue</material>
 
-        <sensor name="laser" type="gpu_lidar">
+        <sensor name="lidar" type="gpu_lidar">
             <pose> 0 0 0 0 0 0 </pose>
             <visualize>false</visualize>
             <update_rate>10</update_rate>
@@ -84,8 +84,8 @@
                     <max>12</max>
                 </range>
             </lidar>
-            <topic>/luggage_av/scan</topic>
-            <gz_frame_id>luggage_av/laser</gz_frame_id>
+            <topic>scan</topic>
+            <gz_frame_id>$(arg namespace)/base_laser</gz_frame_id>
         </sensor>
     </gazebo>
 
