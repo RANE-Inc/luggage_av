@@ -13,6 +13,7 @@ def generate_launch_description():
 
     sim_mode = LaunchConfiguration("sim_mode")
     namespace = LaunchConfiguration("namespace")
+    mock_hardware = LaunchConfiguration("mock_hardware")
 
     rsp_node = Node(
         name="robot_state_publisher",
@@ -25,8 +26,10 @@ def generate_launch_description():
                     [
                         "xacro.process_file('",
                         os.path.join(pkg_share, "urdf", "robot.urdf.xacro"),
-                        "',mappings={'sim_mode':'", EqualsSubstitution(sim_mode, "true"), # Sanitize input
-                        "','namespace':'", namespace, # FIXME: CODE INJECTION (SCARY!)
+                        "',mappings={",
+                            "'sim_mode':'", EqualsSubstitution(sim_mode, "true"), # Sanitize input
+                            "','namespace':'", namespace, # FIXME: CODE INJECTION (SCARY!)
+                            "','mock_hardware':'", EqualsSubstitution(mock_hardware, "true"), # Sanitize input
                         "'}).toxml()"
                     ],
                     ["xacro"]
@@ -51,6 +54,10 @@ def generate_launch_description():
             default_value="luggage_av",
             description="Namespace of the bot (usually its unique identifier)"
         ),
-
+        DeclareLaunchArgument(
+            "mock_hardware",
+            default_value="false",
+            description="Use a mock hardware interface for debugging ros2_control"
+        ),
         rsp_node
     ])

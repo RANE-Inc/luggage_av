@@ -36,15 +36,8 @@ def generate_launch_description():
             launch_arguments=[
                 ("namespace", namespace),
                 ("sim_mode", "false"),
-                ("mock_hardware", "false"),
-            ],
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "sllidar.launch.py")
-            ]),
-            launch_arguments=[
-                ("namespace", namespace),
+                ("mock_hardware", "true"),
+
             ],
         ),
     ])

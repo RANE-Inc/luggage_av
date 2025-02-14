@@ -3,6 +3,7 @@
 
     <xacro:arg name="sim_mode" default="false"/>
     <xacro:arg name="namespace" default="luggage_av"/>
+    <xacro:arg name="mock_hardware" default="false" />
 
 
     <xacro:include filename="drivebase.xacro" />

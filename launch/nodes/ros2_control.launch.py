@@ -19,6 +19,7 @@ def generate_launch_description():
     controller_manager = Node(
         package="controller_manager",
         executable="ros2_control_node",
+        # arguments=["--ros-args","--log-level","debug"],
         parameters=[
             os.path.join(pkg_share, "parameters", "controller_manager.yaml"),
         ],
@@ -67,5 +68,5 @@ def generate_launch_description():
                 target_action=joint_state_broadcaster_spawner,
                 on_exit=[diff_drive_controller_spawner],
             )
-        )
+        ),
     ])
