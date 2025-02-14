@@ -21,10 +21,18 @@
 
 
     <!--LIDAR-->
-    <xacro:property name="lidar_pole_height" value="0.293" />
-    <xacro:property name="lidar_pole_width" value="0.0635" />
-    <xacro:property name="lidar_pole_length" value="0.0635" />
+    <xacro:property name="lidar_pole_length" value="0.04" />
+    <xacro:property name="lidar_pole_width" value="0.02" />
+    <xacro:property name="lidar_pole_height" value="0.449" />
 
-    <xacro:property name="lidar_sensor_height" value="0.02794" />
-    <xacro:property name="lidar_sensor_radius" value="0.0635" />
+    <xacro:property name="lidar_pole_x_offset" value="-0.2794" />
+    <xacro:property name="lidar_pole_y_offset" value="${0.1397+0.102}" />
+    <xacro:property name="lidar_pole_z_offset" value="${0.365-drive_wheel_radius}" />
+
+    <xacro:property name="lidar_sensor_height" value="0.04" />
+    <xacro:property name="lidar_sensor_radius" value="0.0375" />
+
+    <xacro:property name="lidar_sensor_x_offset" value="-0.01" />
+    <xacro:property name="lidar_sensor_y_offset" value="-0.055" />
+    <xacro:property name="lidar_sensor_z_offset" value="${0.003+lidar_pole_height}" />
 </robot>

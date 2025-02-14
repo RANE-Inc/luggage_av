@@ -22,7 +22,7 @@ def generate_launch_description():
         parameters=[
             os.path.join(pkg_share, "parameters", "sllidar.yaml"),
             {
-                "frame_id": IfElseSubstitution(EqualsSubstitution(namespace, ""), "laser", [namespace, "/laser"]) # TODO: Remove prefix to allow for stricter namespace passing
+                "frame_id": IfElseSubstitution(EqualsSubstitution(namespace, ""), "base_laser", [namespace, "/base_laser"]) # TODO: Remove prefix to allow for stricter namespace passing
             }
         ],
         output='screen',
