@@ -43,6 +43,7 @@
             </hardware>
             <joint name="drive_wheel_L_joint">
                 <command_interface name="velocity">
+                    
                     <param name="min">-5</param>
                     <param name="max">5</param>
                 </command_interface>
@@ -51,38 +52,41 @@
             </joint>
             <joint name="drive_wheel_R_joint">
                 <command_interface name="velocity">
-                    <param name="min">-5</param>
+                    <param name="min">-5</param> 
                     <param name="max">5</param>
                 </command_interface>
                 <state_interface name="position"/>
                 <state_interface name="velocity"/>
             </joint>
         </ros2_control>
-
+    
         <gazebo>
             <plugin filename="gz_ros2_control-system" name="gz_ros2_control::GazeboSimROS2ControlPlugin">
                 <parameters>$(find luggage_av)/parameters/controller_manager.yaml</parameters>
+                <parameters>$(find luggage_av)/parameters/gz_ros2_control.yaml</parameters>
+
                 <ros>
-                    <namespace>/$(arg namespace)</namespace>
+                    <namespace>luggage_av</namespace>
+                    <remapping>/luggage_av/diff_drive_controller/cmd_vel:=/luggage_av/cmd_vel</remapping>
                 </ros>
             </plugin>
         </gazebo>
-
+    
         <gazebo reference="caster_wheel_FL">
             <mu value="0.001" />
             <mu2 value="0.001" />
         </gazebo>
-
+    
         <gazebo reference="caster_wheel_FR">
             <mu value="0.001" />
             <mu2 value="0.001" />
         </gazebo>
-
+    
         <gazebo reference="caster_wheel_RL">
             <mu value="0.001" />
             <mu2 value="0.001" />
         </gazebo>
-
+    
         <gazebo reference="caster_wheel_RR">
             <mu value="0.001" />
             <mu2 value="0.001" />

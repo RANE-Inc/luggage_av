@@ -2,11 +2,10 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro"  name="robot">
 
     <xacro:arg name="sim_mode" default="false"/>
-    <xacro:arg name="namespace" default="luggage_av"/>
 
-
+    
     <xacro:include filename="drivebase.xacro" />
     <xacro:include filename="ros2_control.xacro" />
     <xacro:include filename="lidar.xacro" />
-
+    
 </robot>

@@ -5,30 +5,60 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch.actions import IncludeLaunchDescription
+from launch.actions import RegisterEventHandler
 from launch.actions import DeclareLaunchArgument
+from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 
-# IMPORTANT: Ubuntu Wayland fix for gz sim
+
 os.environ["QT_QPA_PLATFORM"]="xcb"
 
 def generate_launch_description():
 
     pkg_share = get_package_share_directory("luggage_av")
 
-    world = LaunchConfiguration("world")
-    namespace = LaunchConfiguration("namespace")
+    world = LaunchConfiguration('world')
+
+    gz_entity_spawner = Node(
+        package='ros_gz_sim',
+        executable='create',
+        output='screen',
+        arguments=[
+            '-topic', '/luggage_av/robot_description',
+            '-name',  'luggage_av', 
+            '-allow_renaming', 'true'
+        ]
+    )
+
+    ros_gz_bridge = Node(
+        package="ros_gz_bridge",
+        executable="parameter_bridge",
+        parameters=[
+            {"config_file": os.path.join(pkg_share,'parameters','gz_bridge.yaml')},  
+        ],
+    )
+
+    rviz = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "rviz.launch.py")
+            ])
+    )
 
 
     return LaunchDescription([
         DeclareLaunchArgument(
-            "world",
-            default_value="obstacles",
-            description="Name of the world"
+            'world',
+            default_value=os.path.join(pkg_share,'worlds','obstacles.world'),
+            description='World to load'
         ),
-        DeclareLaunchArgument(
-            "namespace",
-            default_value="luggage_av",
-            description="Namespace of the bot (usually its unique identifier)"
+        
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "slam_toolbox.launch.py")
+            ]),
+            launch_arguments=[
+                ('sim_mode', 'true')
+            ]
         ),
 
         IncludeLaunchDescription(
@@ -36,71 +66,33 @@ def generate_launch_description():
                 os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "gz_sim.launch.py")
             ]),
             launch_arguments=[
-                ('gz_args', ['-r -v 4 ', PathJoinSubstitution([pkg_share, 'worlds', world]), ".world"]),
+                ('gz_args', ['-r -v 4 ', PathJoinSubstitution([pkg_share, 'worlds', world])]),
             ]
+        ),
+        RegisterEventHandler(
+            event_handler=OnProcessExit(
+                target_action=gz_entity_spawner,
+                on_exit=[
+                    IncludeLaunchDescription(
+                        PythonLaunchDescriptionSource([
+                            os.path.join(pkg_share, "launch", "ros2_control.launch.py")
+                        ]),
+                        launch_arguments=[
+                            ("start_controller", "false"),
+                        ],
+                    )
+                ],
+            )
         ),
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
-                os.path.join(get_package_share_directory("ros_gz_sim"), "launch", "ros_gz_spawn_model.launch.py")
+                os.path.join(pkg_share, "launch", "robot_state_publisher.launch.py")
             ]),
             launch_arguments=[
-                ("bridge_name", "parameter_bridge"),
-                ("config_file", os.path.join(pkg_share, "configs", "gz_bridge.yaml")),
-                ("namespace", namespace), # TODO: Why didn't I have to add slash in the beginning here??? It allows me to add a slash if I pass it from the CLI
-                # ("bridge_params", os.path.join(pkg_share, "parameters", "gz_bridge.yaml")),
-                ("world", world), # TODO: resets the "world" launch argument for all nodes. Possibly related to comment above
-                ("topic", [namespace, "/robot_description"]),
-                ("name", "luggage_av"),
-                ("allow_renaming", "true"),
+                ("sim_mode", "true")
             ]
         ),
-
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "ros2_control.launch.py")
-            ]),
-            launch_arguments=[
-                ("start_controller", "false"),
-                ("namespace", namespace),
-            ],
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "robot_state_publisher.launch.py")
-            ]),
-            launch_arguments=[
-                ("sim_mode", "true"),
-                ("namespace", namespace),
-            ]
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "slam_toolbox.launch.py")
-            ]),
-            launch_arguments=[
-                ("sim_mode", "true"),
-                ("map_filename", PathJoinSubstitution([pkg_share, "maps", world])),
-                ("namespace", namespace),
-                ("slam_mode", "localization"),
-            ]
-        ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "rviz.launch.py")
-            ]),
-            launch_arguments=[
-                ("config_file", os.path.join(pkg_share, "configs", "dev.rviz")), # Gotta set explicitvely as it grabs configs/gz_bridge.yaml for unknown reason
-                ("namespace", namespace),
-            ]
-        ),
-        # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource([
-        #         os.path.join(pkg_share, "launch", "navigation_launch.py")
-        #     ]),
-        #     launch_arguments=[
-        #         ("namespace", namespace),
-        #         ("use_sim_time", "true"),
-        #         ("params_file", PathJoinSubstitution([pkg_share, "parameters", "nav2_params.yaml"])),
-        #     ]
-        # ),
+        ros_gz_bridge,
+        gz_entity_spawner,
+        rviz,
     ])

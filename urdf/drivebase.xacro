@@ -15,7 +15,7 @@
     <link name="base_footprint"></link>
     <link name="base_link"></link>
 
-    <joint name="footprint_joint" type="fixed">
+    <joint name="footprint_joint" type="fixed">  
         <parent link="base_footprint"/>
         <child link="base_link"/>
         <origin xyz="0 0 ${drive_wheel_radius}"/>
@@ -41,12 +41,12 @@
         </xacro:inertial_box>
     </link>
 
-    <joint name="chassis_joint" type="fixed">
+    <joint name="chassis_joint" type="fixed">  
         <parent link="base_link"/>
         <child link="chassis"/>
         <origin xyz="${chassis_X_offset} 0 ${chassis_height/2 - drive_wheel_radius + chassis_Z_offset}"/>
     </joint>
-
+    
     <!-- Drive Wheels -->
     <xacro:drive_wheel name="drive_wheel_L"></xacro:drive_wheel>
 
