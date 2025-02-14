@@ -47,4 +47,14 @@ def generate_launch_description():
                 ("namespace", namespace),
             ],
         ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "nodes", "slam_toolbox.launch.py")
+            ]),
+            launch_arguments=[
+                ("namespace", namespace),
+                ("sim_mode", "false"),
+                ("slam_mode", "mapping"), # FIXME: Launch Argument
+            ],
+        ),
     ])
