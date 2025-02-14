@@ -8,7 +8,7 @@
     <material name="wheel_rubber">
         <color rgba="0.8 0.8 0.8 1" />
     </material>
-
+    
     <!-- Macros -->
     <!-- Drive Wheels -->
     <xacro:macro name="drive_wheel" params="name">
@@ -30,9 +30,9 @@
                 <origin xyz="0 0 0" rpy="-${pi/2} 0 0" />
             </xacro:inertial_cylinder>
         </link>
-    </xacro:macro>
+    </xacro:macro>       
 
-    <!-- Caster Wheels -->
+    <!-- Caster Wheels --> 
     <xacro:macro name="caster_wheel" params="name">
         <link name="${name}">
             <visual>
@@ -52,5 +52,5 @@
                 <origin xyz="-${caster_wheel_X_offset} 0 -${caster_wheel_Z_offset}" rpy="-${pi/2} 0 0" />
             </xacro:inertial_cylinder>
         </link>
-    </xacro:macro>
+    </xacro:macro>       
 </robot>

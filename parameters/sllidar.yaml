@@ -1,10 +1,10 @@
-# TODO: This wildcard might not work
-# TODO: Switch the serial port with a more stable one
-/**/sllidar_node:
-  ros__parameters:
-    channel_type: serial
-    serial_port: /dev/ttyUSB0
-    serial_baudrate: 115200
-    inverted: False
-    angle_compensate: True
-    # scan_mode: Sensitivity
+luggage_av:
+  sllidar_node:
+    ros__parameters:
+      channel_type: serial
+      serial_port: /dev/ttyUSB0
+      serial_baudrate: 115200
+      frame_id: luggage_av/laser
+      inverted: False
+      angle_compensate: True
+      # scan_mode: Sensitivity
