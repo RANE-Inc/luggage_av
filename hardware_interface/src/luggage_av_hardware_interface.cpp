@@ -16,10 +16,13 @@
 #include <errno.h>
 
 
+// TODO: Catch all std::stoX exceptions
+
+
 namespace luggage_av {
 
-    hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_init(const hardware_interface::HardwareInfo& hardware_info) {
-        if(hardware_interface::SystemInterface::on_init(hardware_info) != hardware_interface::CallbackReturn::SUCCESS) 
+    hardware_interface::CallbackReturn LuggageAVHardwareInterface::on_init(const hardware_interface::HardwareInfo& hardware_info) {
+        if(hardware_interface::SystemInterface::on_init(hardware_info) != hardware_interface::CallbackReturn::SUCCESS)
             return hardware_interface::CallbackReturn::ERROR;
 
         // Perform URDF checks
@@ -32,126 +35,180 @@ namespace luggage_av {
             return hardware_interface::CallbackReturn::ERROR;
         }
 
+        //// Perform Joint checks
         for(hardware_interface::ComponentInfo& joint : info_.joints) {
-            //// Check that only a single command interface exist for the joint
+            ////// Check Interfaces
+            //////// Check that only a single command interface exist for the joint
             if(joint.command_interfaces.size() != 1) {
                 RCLCPP_FATAL(
-                    get_logger(), "Joint '%s' has %zu command interfaces found. 1 expected.",
+                    get_logger(), "Joint '%s' has %zu command interface(s) found. 1 expected.",
                     joint.name.c_str(), joint.command_interfaces.size());
 
                 return hardware_interface::CallbackReturn::ERROR;
             }
 
-            //// Check that the only existing command interface is a velocity interface
+            //////// Check that the only existing command interface is a velocity interface
             if(joint.command_interfaces[0].name != hardware_interface::HW_IF_VELOCITY) {
                 RCLCPP_FATAL(
-                    get_logger(), "Joint '%s' have %s command interfaces found. '%s' expected.",
+                    get_logger(), "Joint '%s' has a %s command interface. '%s' expected.",
                     joint.name.c_str(), joint.command_interfaces[0].name.c_str(),
                     hardware_interface::HW_IF_VELOCITY);
 
                 return hardware_interface::CallbackReturn::ERROR;
             }
 
-            //// Check that there are exactly 2 state interfaces
+            //////// Check that there are exactly 2 state interfaces
             if(joint.state_interfaces.size() != 2) {
                 RCLCPP_FATAL(
                     get_logger(), "Joint '%s' has %zu state interface. 2 expected.", joint.name.c_str(),
                     joint.state_interfaces.size());
-            
+
                 return hardware_interface::CallbackReturn::ERROR;
             }
 
-            //// Check that the first state interface is a position interface
+            //////// Check that the first state interface is a position interface
             if(joint.state_interfaces[0].name != hardware_interface::HW_IF_POSITION) {
                 RCLCPP_FATAL(
-                    get_logger(), "Joint '%s' have '%s' as first state interface. '%s' expected.",
+                    get_logger(), "Joint '%s' has a '%s' interface as its first state interface. '%s' expected.",
                     joint.name.c_str(), joint.state_interfaces[0].name.c_str(),
                     hardware_interface::HW_IF_POSITION);
 
                 return hardware_interface::CallbackReturn::ERROR;
             }
 
-            //// Check that the second state interface is a velocity interface
+            //////// Check that the second state interface is a velocity interface
             if(joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY) {
                 RCLCPP_FATAL(
-                    get_logger(), "Joint '%s' have '%s' as second state interface. '%s' expected.",
+                    get_logger(), "Joint '%s' has a '%s' interface as its second state interface. '%s' expected.",
                     joint.name.c_str(), joint.state_interfaces[1].name.c_str(),
-                    hardware_interface::HW_IF_VELOCITY);
-                
+                    hardware_interface::HW_IF_VELOCITY
+                );
+
+                return hardware_interface::CallbackReturn::ERROR;
+            }
+
+            ////// Check params
+            //////// Check that min param exists for command interface
+            if(joint.command_interfaces[0].min == "") { // TODO: Check if this check is correct (aka. if min is "" when not declared)
+                RCLCPP_FATAL(
+                    get_logger(), "%c%s command interface of '%s' joint is missing min parameter.",
+                    toupper(*(joint.command_interfaces[0].name.c_str())), joint.command_interfaces[0].name.c_str()+1,
+                    joint.name.c_str()
+                );
+
+                return hardware_interface::CallbackReturn::ERROR;
+            }
+
+            //////// Check that max param exists for command interface
+            if(joint.command_interfaces[0].max == "") { // TODO: Check if this check is correct (aka. if max is "" when not declared)
+                RCLCPP_FATAL(
+                    get_logger(), "%c%s command interface of '%s' joint is missing max parameter.",
+                    toupper(*(joint.command_interfaces[0].name.c_str())), joint.command_interfaces[0].name.c_str()+1,
+                    joint.name.c_str()
+                );
+
+                return hardware_interface::CallbackReturn::ERROR;
+            }
+
+            //////// Check that encoder_counts_per_revolution param exists for the joint
+            auto it = joint.parameters.find("encoder_counts_per_revolution");
+            if(it == joint.parameters.end()) {
+                RCLCPP_FATAL(
+                    get_logger(), "'%s' joint is missing encoder_counts_per_revolution parameter.",
+                    joint.name.c_str()
+                );
+
                 return hardware_interface::CallbackReturn::ERROR;
             }
         }
 
         // Initialize class memebers
-        auto it = get_hardware_info().hardware_parameters.find("device");
-        if(it != get_hardware_info().hardware_parameters.end()) {
+        auto it = info_.hardware_parameters.find("device");
+        if(it != info_.hardware_parameters.end()) {
             dev_ = const_cast<char*>(it->second.c_str());
         }
         else {
             dev_ = luggage_av_default_parameters.dev;
         }
-        
+
+        it = info_.hardware_parameters.find("baudrate");
+        if(it != info_.hardware_parameters.end()) {
+            switch(int baud_param = std::stoi(it->second)) {
+                case 9600:
+                    baud_ = B9600;
+                    break;
+                case 19200:
+                    baud_ = B19200;
+                    break;
+                case 38400:
+                    baud_ = B38400;
+                    break;
+                case 57600:
+                    baud_ = B57600;
+                    break;
+                case 115200:
+                    baud_ = B115200;
+                    break;
+                case 230400:
+                    baud_ = B230400;
+                    break;
+                case 460800:
+                    baud_ = B460800;
+                    break;
+                case 921600:
+                    baud_ = B921600;
+                    break;
+                default:
+                    RCLCPP_ERROR( // TODO: Use warning instead?
+                        get_logger(), "%d is an unsupported baudrate. Using the default baud.",
+                        baud_param
+                    );
+                    baud_ = luggage_av_default_parameters.baud;
+                    break;
+            }
+        } else {
+            baud_ = luggage_av_default_parameters.baud;
+        }
+
         poll_fd_ = {/*.fd = */-1, /*.events = */POLLIN, /*.revents = */0};
 
-        // TODO: Remove linear_velocity min and max and move to InterfaceInfo min and max
-        it = get_hardware_info().hardware_parameters.find("linear_velocity_min");
-        if(it != get_hardware_info().hardware_parameters.end()) {
-            lin_vel_min_ = hardware_interface::stod(it->second);
-        }
-        else {
-            lin_vel_min_ = luggage_av_default_parameters.lin_vel_min;
+        for(size_t i = 0; i < 2; i++) {
+            wheels[i].ang_vel_min = std::stod(info_.joints[i].command_interfaces[0].min);
+            wheels[i].ang_vel_max = std::stod(info_.joints[i].command_interfaces[0].max);
+
+            auto it = info_.joints[i].command_interfaces[0].parameters.find("hardware_min"), jt = info_.joints[i].command_interfaces[0].parameters.find("hardware_max");
+            if(it != info_.joints[i].command_interfaces[0].parameters.end() && jt != info_.joints[i].command_interfaces[0].parameters.end()) { // Both found
+                wheels[i].hw_cmd_min = std::stoi(it->second);
+                wheels[i].hw_cmd_max = std::stoi(jt->second);
+            } else if(it == info_.joints[i].command_interfaces[0].parameters.end() && jt == info_.joints[i].command_interfaces[0].parameters.end()) { // Neither found
+                wheels[i].hw_cmd_min = luggage_av_default_parameters.hw_cmd_min;
+                wheels[i].hw_cmd_max = luggage_av_default_parameters.hw_cmd_max;
+            } else {
+                RCLCPP_ERROR( // TODO: Use warning instead?
+                    get_logger(), "'%c%s command interface of '%s' joint can't have only hardware_min or hardware_max parameter. It must have either both defined or neither.",
+                    toupper(*(info_.joints[i].command_interfaces[0].name.c_str())), info_.joints[i].command_interfaces[0].name.c_str()+1,
+                    info_.joints[i].name.c_str()
+                );
+            }
+
+            wheels[i].enc_cpr = std::stoi(info_.joints[i].parameters.find("encoder_counts_per_revolution")->second);
+
+            wheels[i].velocity_command_interface_name = info_.joints[i].name + "/velocity";
+            wheels[i].position_state_interface_name = info_.joints[i].name + "/position";
+            wheels[i].velocity_state_interface_name = info_.joints[i].name + "/velocity";
         }
 
-        it = get_hardware_info().hardware_parameters.find("linear_velocity_max");
-        if(it != get_hardware_info().hardware_parameters.end()) {
-            lin_vel_max_ = hardware_interface::stod(it->second);
-        }
-        else {
-            lin_vel_max_ = luggage_av_default_parameters.lin_vel_max;
-        }
-
-        it = get_hardware_info().hardware_parameters.find("hardware_command_min");
-        if(it != get_hardware_info().hardware_parameters.end()) {
-            hw_cmd_min_ = hardware_interface::stod(it->second);
-        }
-        else {
-            hw_cmd_min_ = luggage_av_default_parameters.hw_cmd_min;
-        }
-
-        it = get_hardware_info().hardware_parameters.find("hardware_command_max");
-        if(it != get_hardware_info().hardware_parameters.end()) {
-            hw_cmd_max_ = hardware_interface::stod(it->second);
-        }
-        else {
-            hw_cmd_max_ = luggage_av_default_parameters.hw_cmd_max;
-        }
-
-        it = get_hardware_info().hardware_parameters.find("encoder_counts_per_revolution");
-        if(it != get_hardware_info().hardware_parameters.end()) {
-            enc_cpr_ = hardware_interface::stod(it->second);
-        }
-        else {
-            enc_cpr_ = luggage_av_default_parameters.enc_cpr;
-        }
-
-        wheel_L_.velocity_command_interface_name = info_.joints[0].name + "/velocity";
-        wheel_L_.position_state_interface_name = info_.joints[0].name + "/position";
-        wheel_L_.velocity_state_interface_name = info_.joints[0].name + "/velocity";
-        wheel_R_.velocity_command_interface_name = info_.joints[1].name + "/velocity";
-        wheel_R_.position_state_interface_name = info_.joints[1].name + "/position";
-        wheel_R_.velocity_state_interface_name = info_.joints[1].name + "/velocity";
-        
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_configure(const rclcpp_lifecycle::State& /*previous_state*/) {
+    hardware_interface::CallbackReturn LuggageAVHardwareInterface::on_configure(const rclcpp_lifecycle::State& /*previous_state*/) {
 
         poll_fd_.fd = open(dev_, O_RDWR | O_NOCTTY);
 
         if(poll_fd_.fd < 0) {
             RCLCPP_ERROR(get_logger(), "Unable to open %s: %i - %s", dev_, errno, strerror(errno));
-            
+
             return hardware_interface::CallbackReturn::ERROR;
         }
 
@@ -190,9 +247,8 @@ namespace luggage_av {
         // The read call will immidiately return anything it currently holds in the buffer and not block;
 
         // Baud rate
-        // TODO: Read from hardware parameters
-        cfsetispeed(&tty_, B115200);
-        cfsetospeed(&tty_, B115200);
+        cfsetispeed(&tty_, baud_);
+        cfsetospeed(&tty_, baud_);
 
         if (tcsetattr(poll_fd_.fd, TCSANOW, &tty_) < 0) {
            RCLCPP_ERROR(get_logger(), "Error setting termios attributes: %i - %s", errno, strerror(errno));
@@ -202,7 +258,7 @@ namespace luggage_av {
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
+    hardware_interface::CallbackReturn LuggageAVHardwareInterface::on_cleanup(const rclcpp_lifecycle::State& /*previous_state*/) {
         if(poll_fd_.fd < 0) return hardware_interface::CallbackReturn::SUCCESS; // The file descriptor was never opened
 
         if(close(poll_fd_.fd) < 0) {
@@ -216,33 +272,72 @@ namespace luggage_av {
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
+    hardware_interface::CallbackReturn LuggageAVHardwareInterface::on_activate(const rclcpp_lifecycle::State& /*previous_state*/) {
+        // Initialize interfaces
+        for(size_t i = 0; i < 2; i++) {
+            // TODO: Parse initial value
+            set_command(wheels[i].velocity_command_interface_name, 0.0);
+            set_state(wheels[i].position_state_interface_name, 0.0);
+            set_state(wheels[i].velocity_state_interface_name, 0.0);
+        }
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
+    hardware_interface::CallbackReturn LuggageAVHardwareInterface::on_deactivate(const rclcpp_lifecycle::State& /*previous_state*/) {
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_shutdown(const rclcpp_lifecycle::State& /*previous_state*/) {
-        // TODO: Send 0 0 command
+    hardware_interface::CallbackReturn LuggageAVHardwareInterface::on_shutdown(const rclcpp_lifecycle::State& /*previous_state*/) {
+        hardware_write(0.0, 0.0);
 
         return hardware_interface::CallbackReturn::SUCCESS;
     }
 
-    hardware_interface::CallbackReturn LuggageAVHardawreInterface::on_error(const rclcpp_lifecycle::State& /*previous_state*/) {
-        // TODO: Send 0 0 command
+    hardware_interface::CallbackReturn LuggageAVHardwareInterface::on_error(const rclcpp_lifecycle::State& /*previous_state*/) {
+        hardware_write(0.0, 0.0);
 
         return hardware_interface::CallbackReturn::SUCCESS;
+    }
+
+    hardware_interface::return_type LuggageAVHardwareInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
+
+        int32_t position_left;
+        int32_t position_right;
+        float velocity_left;
+        float velocity_right;
+
+        hardware_interface::return_type rv = hardware_read(&position_left, &position_right, &velocity_left, &velocity_right);
+
+        if(rv != hardware_interface::return_type::OK) return rv;
+
+        set_state(wheels[0].position_state_interface_name, 2 * M_PI * position_left / wheels[0].enc_cpr);
+        set_state(wheels[1].position_state_interface_name, 2 * M_PI * position_right / wheels[1].enc_cpr);
+        set_state(wheels[0].velocity_state_interface_name, 2 * M_PI * velocity_left / wheels[0].enc_cpr);
+        set_state(wheels[1].velocity_state_interface_name, 2 * M_PI * velocity_right / wheels[1].enc_cpr);
+
+
+        return hardware_interface::return_type::OK;
+    }
+
+    carry_my_luggage::WheelCommands wc_msg;
+    std::string wc_msg_str;
+    uint8_t out_buf[256];
+
+    hardware_interface::return_type LuggageAVHardwareInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
+
+        return hardware_write(
+            get_command(wheels[0].velocity_command_interface_name),
+            get_command(wheels[1].velocity_command_interface_name)
+        );
     }
 
     uint8_t in_buf[256];
     uint8_t ws_msg_buf[256];
     carry_my_luggage::WheelStates ws_msg;
 
-    hardware_interface::return_type LuggageAVHardawreInterface::read(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
+    hardware_interface::return_type LuggageAVHardwareInterface::hardware_read(int32_t* position_left_ptr, int32_t* position_right_ptr, float* velocity_left_ptr, float* velocity_right_ptr) {
         int fd_ready = poll(&poll_fd_, 1, -1); // TODO: timeout?
 
         if(fd_ready < 0) {
@@ -272,16 +367,16 @@ namespace luggage_av {
                 last2_zeros[1] = i;
             }
         }
-        
+
         if(last2_zeros[0] < 0 || last2_zeros[1] < 0) {
             // TODO: Better logging
             printf("Couldn't get a full complete message, skipping...\n");
 
-            return hardware_interface::return_type::OK; 
+            return hardware_interface::return_type::OK;
         }
 
         cobs_decode_result decode_result = cobs_decode(ws_msg_buf, sizeof(ws_msg_buf), in_buf+last2_zeros[0]+1, last2_zeros[1]-last2_zeros[0]-1);
-        
+
         if(decode_result.status != cobs_decode_status::COBS_DECODE_OK) {
             // TODO: Better logging
 
@@ -306,39 +401,32 @@ namespace luggage_av {
         }
 
         // TODO: CRC
-        
+
         if(!(ws_msg.ParseFromString(std::string((const char *)ws_msg_buf, decode_result.out_len)))) {
             // TODO: Better logging
             RCLCPP_ERROR(get_logger(), "protobuf parsing resulted in an error"); // FIXME: It seems to be throwing this a lot
 
             return hardware_interface::return_type::ERROR;
         }
-        
-        set_state(wheel_L_.position_state_interface_name, 2 * M_PI * ws_msg.position_left() / enc_cpr_);
-        set_state(wheel_R_.position_state_interface_name, 2 * M_PI * ws_msg.position_right() / enc_cpr_);
-        set_state(wheel_L_.velocity_state_interface_name, 2 * M_PI * ws_msg.velocity_left() / enc_cpr_);
-        set_state(wheel_R_.velocity_state_interface_name, 2 * M_PI * ws_msg.velocity_right() / enc_cpr_);
 
+        *position_left_ptr = ws_msg.position_left();
+        *position_right_ptr = ws_msg.position_right();
+        *velocity_left_ptr = ws_msg.velocity_left();
+        *velocity_right_ptr = ws_msg.velocity_right();
 
         return hardware_interface::return_type::OK;
     }
 
-    carry_my_luggage::WheelCommands wc_msg;
-    std::string wc_msg_str;
-    uint8_t out_buf[256];
+    hardware_interface::return_type LuggageAVHardwareInterface::hardware_write(double velocity_left, double velocity_right) {
+        wc_msg.set_velocity_left((wheels[0].hw_cmd_max-wheels[0].hw_cmd_min)*(velocity_left-wheels[0].ang_vel_min)/(wheels[0].ang_vel_max-wheels[0].ang_vel_min)+wheels[0].hw_cmd_min);
+        wc_msg.set_velocity_right((wheels[1].hw_cmd_max-wheels[1].hw_cmd_min)*(velocity_right-wheels[1].ang_vel_min)/(wheels[1].ang_vel_max-wheels[1].ang_vel_min)+wheels[1].hw_cmd_min);
 
-    hardware_interface::return_type LuggageAVHardawreInterface::write(const rclcpp::Time& /*time*/, const rclcpp::Duration& /*period*/) {
-        // TODO: Move the actual write into its own function
-        
-        wc_msg.set_velocity_left((hw_cmd_max_-hw_cmd_min_)*(get_command(wheel_L_.velocity_command_interface_name)-lin_vel_min_)/(lin_vel_max_-lin_vel_min_)+hw_cmd_min_);
-        wc_msg.set_velocity_right((hw_cmd_max_-hw_cmd_min_)*(get_command(wheel_R_.velocity_command_interface_name)-lin_vel_min_)/(lin_vel_max_-lin_vel_min_)+hw_cmd_min_);
-        
         wc_msg.SerializeToString(&wc_msg_str);
-    
+
         // TODO: CRC
 
         cobs_encode_result encode_result = cobs_encode(out_buf, sizeof(out_buf), wc_msg_str.c_str(), wc_msg_str.size());
-        
+
         if(encode_result.status != cobs_encode_status::COBS_ENCODE_OK) {
             if(encode_result.status & cobs_encode_status::COBS_ENCODE_NULL_POINTER) {
                 RCLCPP_ERROR(get_logger(), "A null pointer was passed to cobs_encode function");
@@ -367,10 +455,9 @@ namespace luggage_av {
 
         return hardware_interface::return_type::OK;
     }
-    
+
 }  // namespace luggage_av
 
 #include "pluginlib/class_list_macros.hpp"
 
-PLUGINLIB_EXPORT_CLASS(luggage_av::LuggageAVHardawreInterface, hardware_interface::SystemInterface);
- 
+PLUGINLIB_EXPORT_CLASS(luggage_av::LuggageAVHardwareInterface, hardware_interface::SystemInterface);

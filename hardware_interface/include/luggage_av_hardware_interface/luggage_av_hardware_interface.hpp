@@ -8,29 +8,27 @@
 
 namespace luggage_av {
 
-class LuggageAVHardawreInterface : public hardware_interface::SystemInterface {
+class LuggageAVHardwareInterface : public hardware_interface::SystemInterface {
 private:
     char* dev_;
+    unsigned int baud_;
     pollfd poll_fd_;
     struct termios tty_;
 
-    int32_t hw_cmd_min_;
-    int32_t hw_cmd_max_;
-
-    double lin_vel_min_;
-    double lin_vel_max_;
-
-    uint32_t enc_cpr_;
-
     struct Wheel {
+        double ang_vel_min;
+        double ang_vel_max;
+        int32_t hw_cmd_min;
+        int32_t hw_cmd_max;
+        uint32_t enc_cpr;
+
         std::string velocity_command_interface_name;
         std::string position_state_interface_name;
         std::string velocity_state_interface_name;
     };
 
-    Wheel wheel_L_;
-    Wheel wheel_R_;
-    
+    Wheel wheels[2];
+
 public:
 
     // from LifecycleNodeInterface
@@ -47,6 +45,8 @@ public:
     // CallbackReturn export_command_interfaces();
     hardware_interface::return_type read(const rclcpp::Time& time, const rclcpp::Duration& period);
     hardware_interface::return_type write(const rclcpp::Time& time, const rclcpp::Duration& period);
+    hardware_interface::return_type hardware_read(int32_t* position_left_ptr, int32_t* position_right_ptr, float* velocity_left_ptr, float* velocity_right_ptr);
+    hardware_interface::return_type hardware_write(double velocity_left, double velocity_right);
 
 };
 
