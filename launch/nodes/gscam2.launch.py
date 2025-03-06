@@ -34,7 +34,7 @@ def generate_launch_description():
     return LaunchDescription([
         DeclareLaunchArgument(
             'camera_name',
-            default_value="logitech_c921",
+            default_value="logitech_c920",
             description="The name of the camera. Note: Do not include whitespaces in your name"
         ),
         DeclareLaunchArgument(
