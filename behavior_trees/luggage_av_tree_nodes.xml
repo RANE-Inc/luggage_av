@@ -1,0 +1,11 @@
+<root BTCPP_format="4">
+    <TreeNodesModel>
+        <Action ID="WaitForRoute">
+            <output_port name="pickup_pose" type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Stamped Extracted Pose</output_port>
+            <output_port name="dropoff_pose" type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Stamped Extracted Pose</output_port>
+        </Action>
+        <Action ID="Pickup_Passenger"/>
+        <!-- <Action ID="Dropoff_Passenger"/>
+        <Action ID="Report_Failure"/> -->
+    </TreeNodesModel>
+</root>

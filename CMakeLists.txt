@@ -29,6 +29,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 # COMPILE
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_commands.proto ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_states.proto)
 
+# Library for hardware interface
 add_library(
   luggage_av
   SHARED
@@ -50,6 +51,35 @@ ament_target_dependencies(
   ${HARDWARE_INTERFACE_INCLUDE_DEPENDS}
 )
 
+# Library for the BT node
+find_package(nav2_behavior_tree REQUIRED)
+find_package(luggage_av_msgs REQUIRED)
+find_package(behaviortree_cpp_v3 REQUIRED)
+
+# add_library(
+#   wait_for_service_request_bt_node SHARED
+#   behavior_trees/wait_for_service_request_bt_node.cpp
+# )
+
+# target_compile_features(wait_for_service_request_bt_node PUBLIC cxx_std_17)
+
+add_library(
+  wait_for_route_bt_node SHARED
+  behavior_trees/wait_for_route_bt_node.cpp
+  behavior_trees/dropoff_passenger_bt_node.hpp
+)
+
+target_compile_features(wait_for_route_bt_node PUBLIC cxx_std_17)
+
+ament_target_dependencies(
+  #wait_for_service_request_bt_node PUBLIC
+  wait_for_route_bt_node PUBLIC
+  rclcpp
+  nav2_behavior_tree
+  luggage_av_msgs
+  behaviortree_cpp_v3
+)
+
 pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
 
@@ -64,7 +94,7 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS luggage_av
+install(TARGETS luggage_av wait_for_route_bt_node #wait_for_service_request_bt_node
   EXPORT export_luggage_av
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -89,4 +119,5 @@ endif()
 # EXPORT
 ament_export_targets(export_luggage_av HAS_LIBRARY_TARGET)
 ament_export_dependencies(${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
+ament_export_dependencies(rosidl_default_runtime)
 ament_package()

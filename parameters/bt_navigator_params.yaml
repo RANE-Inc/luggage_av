@@ -1,0 +1,23 @@
+/**/bt_navigator:
+  ros__parameters:
+    global_frame: map
+    robot_base_frame: base_link
+    transform_tolerance: 0.1
+
+    bt_xml_filename: "$(find-pkg-share luggage_av)/behavior_trees/main_bt.xml"
+    plugins: ["luggage_av::RegisterNodes"]   # Custom plugin registration
+    default_nav_to_pose_bt_xml: "$(find-pkg-share luggage_av)/behavior_trees/main_bt.xml"
+    plugin_lib_names:
+      - nav2_wait_action_bt_node
+      - nav2_compute_path_to_pose_action_bt_node
+      - wait_for_rout_bt_node
+      - dropoff_passenger_bt_node
+      # Add other plugins here
+      
+    # use_sim_time: True
+    # odom_topic: /odom
+    # default_nav_through_poses_bt_xml: replace/with/path/to/bt.xml # or $(find-pkg-share my_package)/behavior_tree/my_nav_through_poses_bt.xml
+    # plugin_lib_names:
+    # - nav2_back_up_action_bt_node # other plugin
+    # - nav2_wait_action_bt_node    # our new plugin
+

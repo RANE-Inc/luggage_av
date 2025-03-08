@@ -14,6 +14,7 @@ os.environ["QT_QPA_PLATFORM"]="xcb"
 def generate_launch_description():
 
     pkg_share = get_package_share_directory("luggage_av")
+    # pkg_share = get_package_share_directory("luggasudo raspi-configge_av")
 
     world = LaunchConfiguration("world")
     namespace = LaunchConfiguration("namespace")
