@@ -1,4 +1,4 @@
-rosbridge_websocket:
+/**/rosbridge_websocket:
   ros__parameters:
     port: 9090
     address: ""                    # Address to bind to (empty string means all interfaces)
@@ -18,7 +18,7 @@ rosbridge_websocket:
     params_glob: ""
     bson_only_mode: false
 
-rosapi:
+/**/rosapi:
   ros__parameters:
     topics_glob: ""                # Glob patterns for filtering in rosapi
     services_glob: ""
