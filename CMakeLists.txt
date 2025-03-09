@@ -17,6 +17,10 @@ set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+# find_package(rclcpp REQUIRED)
+# find_package(tf2_ros REQUIRED)
+# find_package(geometry_msgs REQUIRED)
+# find_package(tf2_geometry_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -45,6 +49,8 @@ target_include_directories(luggage_av PUBLIC
   ${Protobuf_INCLUDE_DIRS}
 )
 
+# add_executable(my_node src/my_node.cpp)
+# ament_target_dependencies(my_node rclcpp tf2_ros geometry_msgs tf2_geometry_msgs)
 ament_target_dependencies(
   luggage_av PUBLIC
   ${HARDWARE_INTERFACE_INCLUDE_DEPENDS}
