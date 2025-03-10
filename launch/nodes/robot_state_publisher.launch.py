@@ -41,14 +41,6 @@ def generate_launch_description():
         namespace=["/", namespace],
         remappings=[("/tf","tf"),("/tf_static","tf_static")], # Remap tf topics to the namespace
     )
-    tf2_node = Node(
-        package="tf2_ros",
-        executable="static_transform_publisher",
-        name="static_transform_publisher",
-        output="screen",
-        arguments=["0", "0", "0", "0", "0", "0", "map", "base_link"],
-        namespace=namespace,
-    )
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -66,6 +58,5 @@ def generate_launch_description():
             default_value="false",
             description="Use a mock hardware interface for debugging ros2_control"
         ),
-        tf2_node,
         rsp_node
     ])
