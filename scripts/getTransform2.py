@@ -12,6 +12,7 @@ def main(args=None):
     rclpy.init(args=args)
 
     node = rclpy.create_node('view_frames')
+    namespace = node.get_namespace().lstrip('/')
 
     buffer = tf2_ros.Buffer(node=node)
     listener = tf2_ros.TransformListener(buffer, node, spin_thread=False)
@@ -27,7 +28,7 @@ def main(args=None):
 
     node.get_logger().info('Getting transform from map to base_link...')
     try:
-        transform = buffer.lookup_transform('map', 'base_link', rclpy.time.Time())
+        transform = buffer.lookup_transform(f'{namespace}/map', f'{namespace}/base_link', rclpy.time.Time())
         node.get_logger().info('Transform: {}'.format(transform))
     except (tf2.LookupException, tf2.ConnectivityException, tf2.ExtrapolationException) as e:
         node.get_logger().error('Failed to get transform: {}'.format(e))

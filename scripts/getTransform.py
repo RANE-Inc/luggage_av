@@ -15,8 +15,9 @@ class BaseLinkToMapListener(Node):
 
     def __init__(self, first_frame='base_link', second_frame='map'):
         super().__init__('base_link_to_map_listener')
-        self.first_name_ = first_frame
-        self.second_name_ = second_frame
+        namespace = self.get_namespace().lstrip('/')
+        self.first_name_ = f'{namespace}/' + first_frame
+        self.second_name_ = f'{namespace}/' + second_frame
         self.tf_buffer = Buffer()
         self.tf_listener = TransformListener(self.tf_buffer, self)
         # self.cmd_ = Twist ()
@@ -26,30 +27,21 @@ class BaseLinkToMapListener(Node):
 
     def timer_callback(self):
         try:
-            trans = self.tf_buffer.lookup_transform(self.second_name_, self.first_name_, rclpy.time.Time())
-            self.cmd_.linear.x = math.sqrt(trans.transform.translation.x ** 2 + trans.transform.translation.y ** 2)
-            self.cmd_.angular.z = 4 * math.atan2(trans.transform.translation.y , trans.transform.translation.x)
-            self.publisher_.publish(self.cmd_)
-            self.get_logger().info('Publishing velocity command: linear.x = %f, angular.z = %f' % (self.cmd_.linear.x, self.cmd_.angular.z))
+            # Lookup the transform from map to base_link
+            transform: TransformStamped = self.tf_buffer.lookup_transform(
+                self.first_name_,
+                self.second_name_,
+                rclpy.time.Time()  # Time (0 means latest available)
+            )
+            self.print_transform(transform)
+            self.timer.cancel()
+            # TODO: figure out how to end this properly and not just cancel the timer which results in hanging program
 
-        except LookupException as e:
-            self.get_logger().error('failed to get transform {} \n'.format(repr(e)))
-
-        # try:
-        #     # Lookup the transform from map to base_link
-        #     transform: TransformStamped = self.tf_buffer.lookup_transform(
-        #         self.first_name_,
-        #         self.second_name_,
-        #         rclpy.time.Time()  # Time (0 means latest available)
-        #     )
-        #     self.print_transform(transform)
-        #     self.timer.cancel()
-        #     rclpy.shutdown()
-        # except TransformException as ex:
-        #     self.get_logger().info(f"Could not get transform: {ex}")
+        except TransformException as ex:
+            self.get_logger().info(f"Could not get transform: {ex}")
 
     def print_transform(self, transform: TransformStamped):
-        self.get_logger().info(f"Transform: {transform}")
+        # self.get_logger().info(f"Transform: {transform}")
         self.get_logger().info(f"Translation: [x: {transform.transform.translation.x}, "
                               f"y: {transform.transform.translation.y}, "
                               f"z: {transform.transform.translation.z}]")
@@ -65,8 +57,9 @@ def main(args=None):
         rclpy.spin(node)
     except KeyboardInterrupt:
         pass
-    node.destroy_node()
-    rclpy.shutdown()
+    finally:
+        node.destroy_node()
+        rclpy.shutdown()
 
 if __name__ == '__main__':
     main()
