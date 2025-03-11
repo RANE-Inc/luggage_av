@@ -18,11 +18,6 @@ set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
 # find dependencies
 find_package(ament_cmake REQUIRED)
 
-install(
-  PROGRAMS
-  scripts/getTransform.py
-  DESTINATION lib/${PROJECT_NAME}
-)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -68,6 +63,11 @@ install(
 install(
   DIRECTORY configs launch maps parameters urdf worlds
   DESTINATION share/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY scripts
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(TARGETS luggage_av
