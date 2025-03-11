@@ -42,6 +42,7 @@ def generate_launch_description():
         remappings=[("/tf","tf"),("/tf_static","tf_static")], # Remap tf topics to the namespace
     )
 
+    
     return LaunchDescription([
         DeclareLaunchArgument(
             "sim_mode",

@@ -23,11 +23,6 @@ install(
   scripts/getTransform.py
   DESTINATION lib/${PROJECT_NAME}
 )
-install(
-  PROGRAMS
-  scripts/getTransform2.py
-  DESTINATION lib/${PROJECT_NAME}
-)
 # find_package(rclcpp REQUIRED)
 # find_package(tf2_ros REQUIRED)
 # find_package(geometry_msgs REQUIRED)
@@ -60,8 +55,6 @@ target_include_directories(luggage_av PUBLIC
   ${Protobuf_INCLUDE_DIRS}
 )
 
-# add_executable(my_node src/my_node.cpp)
-# ament_target_dependencies(my_node rclcpp tf2_ros geometry_msgs tf2_geometry_msgs)
 ament_target_dependencies(
   luggage_av PUBLIC
   ${HARDWARE_INTERFACE_INCLUDE_DEPENDS}
