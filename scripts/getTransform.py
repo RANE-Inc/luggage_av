@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import rclpy
 from rclpy.node import Node
 from tf2_ros import TransformException
@@ -25,10 +26,11 @@ class BaseLinkToMapListener(Node):
 
     def timer_callback(self):
         try:
-            trans = self._tf_buffer.lookup_transform(self.second_name_, self.first_name_, rclpy.time.Time())
+            trans = self.tf_buffer.lookup_transform(self.second_name_, self.first_name_, rclpy.time.Time())
             self.cmd_.linear.x = math.sqrt(trans.transform.translation.x ** 2 + trans.transform.translation.y ** 2)
             self.cmd_.angular.z = 4 * math.atan2(trans.transform.translation.y , trans.transform.translation.x)
             self.publisher_.publish(self.cmd_)
+            self.get_logger().info('Publishing velocity command: linear.x = %f, angular.z = %f' % (self.cmd_.linear.x, self.cmd_.angular.z))
 
         except LookupException as e:
             self.get_logger().error('failed to get transform {} \n'.format(repr(e)))
@@ -36,8 +38,8 @@ class BaseLinkToMapListener(Node):
         # try:
         #     # Lookup the transform from map to base_link
         #     transform: TransformStamped = self.tf_buffer.lookup_transform(
-        #         '/luggage_av/map',
-        #         '/luggage_av/base_link',
+        #         self.first_name_,
+        #         self.second_name_,
         #         rclpy.time.Time()  # Time (0 means latest available)
         #     )
         #     self.print_transform(transform)

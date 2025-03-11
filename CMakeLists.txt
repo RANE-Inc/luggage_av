@@ -17,6 +17,17 @@ set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+
+install(
+  PROGRAMS
+  scripts/getTransform.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+install(
+  PROGRAMS
+  scripts/getTransform2.py
+  DESTINATION lib/${PROJECT_NAME}
+)
 # find_package(rclcpp REQUIRED)
 # find_package(tf2_ros REQUIRED)
 # find_package(geometry_msgs REQUIRED)
