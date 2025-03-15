@@ -9,9 +9,25 @@ class BehaviorTreeNode : public rclcpp::Node
 public:
     BehaviorTreeNode() : Node("behavior_tree_node")
     {
+        // Get the XML file path from the launch arguments
+        std::string xml_file_path;
+
+        this->declare_parameter<std::string>("bt_xml_file", "");
+        this->get_parameter("bt_xml_file", xml_file_path);
+
+        RCLCPP_INFO(this->get_logger(), "Behavior tree XML file path: %s", xml_file_path.c_str());
+
+        if (xml_file_path.empty())
+        {
+            RCLCPP_ERROR(this->get_logger(), "Behavior tree XML file path is empty");
+            throw std::runtime_error("Behavior tree XML file path is empty");
+        }
+
+
+        // Set up the Behavior Tree
         BehaviorTreeFactory factory;
 
-        auto tree_simplified = factory.createTreeFromText("bt_simple.xml");
+        auto tree_simplified = factory.createTreeFromFile(xml_file_path);
 
         factory.registerNodeType<WaitForRoute>("WaitForRoute");
         // factory.registerSimpleCondition("WaitForRoute", std::bind(&WaitForRoute));

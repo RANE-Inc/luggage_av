@@ -67,10 +67,10 @@ find_package(behaviortree_cpp_v3 REQUIRED)
 
 pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
-rosidl_generate_interfaces(luggage_av_interfaces    #TODO:!!this is hardcoded. Fix it
-  "msg/RoutePoses.msg"
-  DEPENDENCIES geometry_msgs  # Add dependencies for message types used in your custom message
-)
+# rosidl_generate_interfaces(luggage_av_interfaces    #TODO:!!this is hardcoded. Fix it
+#   "msg/RoutePoses.msg"
+#   DEPENDENCIES geometry_msgs  # Add dependencies for message types used in your custom message
+# )
 
 ament_export_dependencies(rosidl_default_runtime)
 
@@ -85,7 +85,7 @@ install(
 )
 
 install(
-  DIRECTORY configs launch maps parameters urdf worlds msg
+  DIRECTORY configs launch maps parameters urdf worlds msg behavior_trees
   DESTINATION share/${PROJECT_NAME}
 )
 

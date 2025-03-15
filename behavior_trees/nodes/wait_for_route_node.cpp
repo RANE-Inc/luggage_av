@@ -2,7 +2,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-#include "luggage_av/msg/RoutePoses.hpp" // Include the header for PickupDropoffPoses
+// #include "luggage_av/msg/RoutePoses.hpp" // Include the header for PickupDropoffPoses
 
 using namespace std::chrono_literals;
 
@@ -20,14 +20,21 @@ public:
 
         std::string topic = namespace_.empty() ? "/route" : namespace_ + "/route";
 
-        subscriber_ = node_->create_subscription<luggage_av::msg::PickupDropoffPoses>(
-            topic, 10, [this](const luggage_av::msg::RoutePoses::SharedPtr msg)
+        subscriber_ = node_->create_subscription<std_msgs::msg::String>(
+            topic, 10, [this](const std_msgs::msg::String::SharedPtr msg)
             {
-                RCLCPP_INFO(node_->get_logger(), "[%s] Received Route", namespace_.c_str());
-                this->pickup_pose_ = msg->pickup_pose;
-                this->dropoff_pose_ = msg->dropoff_pose;
+                RCLCPP_INFO(node_->get_logger(), "[%s] Received message: %s", namespace_.c_str(), msg->data.c_str());
+                // For demonstration purposes, we set route_received_ to true when a message is received
                 this->route_received_ = true;
             });
+        // subscriber_ = node_->create_subscription<luggage_av::msg::RoutePoses>(
+        //     topic, 10, [this](const luggage_av::msg::RoutePoses::SharedPtr msg)
+        //     {
+        //         RCLCPP_INFO(node_->get_logger(), "[%s] Received Route", namespace_.c_str());
+        //         this->pickup_pose_ = msg->pickup_pose;
+        //         this->dropoff_pose_ = msg->dropoff_pose;
+        //         this->route_received_ = true;
+        //     });
 
         executor_.add_node(node_);
     }
@@ -35,8 +42,9 @@ public:
     ~WaitForRoute() noexcept override = default; // Explicitly declare the destructor
 
     static PortsList providedPorts() { 
-        return {OutputPort<geometry_msgs::msg::PoseStamped>("pickup_pose"),
-                OutputPort<geometry_msgs::msg::PoseStamped>("dropoff_pose")};
+        return {};
+        // return {OutputPort<geometry_msgs::msg::PoseStamped>("pickup_pose"),
+        //         OutputPort<geometry_msgs::msg::PoseStamped>("dropoff_pose")};
     }
 
     NodeStatus tick() override
@@ -47,8 +55,8 @@ public:
         {
             route_received_ = false; // Reset the flag
 
-            setOutput("pickup_pose", pickup_pose_);
-            setOutput("dropoff_pose", dropoff_pose_);
+            // setOutput("pickup_pose", pickup_pose_);
+            // setOutput("dropoff_pose", dropoff_pose_);
 
             return NodeStatus::SUCCESS;
         }
@@ -58,7 +66,8 @@ public:
 private:
     rclcpp::Node::SharedPtr node_;
     std::string namespace_;
-    rclcpp::Subscription<luggage_av::msg::PickupDropoffPoses>::SharedPtr subscriber_;
+    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscriber_;
+    // rclcpp::Subscription<luggage_av::msg::RoutePoses>::SharedPtr subscriber_;
     rclcpp::executors::SingleThreadedExecutor executor_;
     bool route_received_;
     geometry_msgs::msg::PoseStamped pickup_pose_;
