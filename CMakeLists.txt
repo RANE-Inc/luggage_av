@@ -54,21 +54,6 @@ ament_target_dependencies(
 find_package(nav2_behavior_tree REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
 
-add_library(
-  wait_for_route_bt_node SHARED
-  behavior_trees/wait_for_route_bt_node.cpp
-  behavior_trees/dropoff_passenger_bt_node.hpp
-)
-
-target_compile_features(wait_for_route_bt_node PUBLIC cxx_std_17)
-
-ament_target_dependencies(
-  wait_for_route_bt_node PUBLIC
-  rclcpp
-  nav2_behavior_tree
-  behaviortree_cpp_v3
-)
-
 pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
 rosidl_generate_interfaces(luggage_av_interfaces    #TODO:!!this is hardcoded. Fix it
@@ -89,7 +74,7 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS luggage_av wait_for_route_bt_node
+install(TARGETS luggage_av
   EXPORT export_luggage_av
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
