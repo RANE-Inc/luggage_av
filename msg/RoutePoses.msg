@@ -1,0 +1,3 @@
+# RoutePoses.msg
+geometry_msgs/PoseStamped pickup_pose
+geometry_msgs/PoseStamped dropoff_pose

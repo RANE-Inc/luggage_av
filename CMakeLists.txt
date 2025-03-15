@@ -5,7 +5,6 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
 # DEPENDENCIES
 set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
   hardware_interface
@@ -17,9 +16,9 @@ set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
+find_package(rosidl_default_generators REQUIRED)
+find_package(geometry_msgs REQUIRED)  # Required for geometry_msgs/PoseStamped
+
 foreach(Dependency IN ITEMS ${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
@@ -53,15 +52,7 @@ ament_target_dependencies(
 
 # Library for the BT node
 find_package(nav2_behavior_tree REQUIRED)
-find_package(luggage_av_msgs REQUIRED)
 find_package(behaviortree_cpp_v3 REQUIRED)
-
-# add_library(
-#   wait_for_service_request_bt_node SHARED
-#   behavior_trees/wait_for_service_request_bt_node.cpp
-# )
-
-# target_compile_features(wait_for_service_request_bt_node PUBLIC cxx_std_17)
 
 add_library(
   wait_for_route_bt_node SHARED
@@ -72,16 +63,20 @@ add_library(
 target_compile_features(wait_for_route_bt_node PUBLIC cxx_std_17)
 
 ament_target_dependencies(
-  #wait_for_service_request_bt_node PUBLIC
   wait_for_route_bt_node PUBLIC
   rclcpp
   nav2_behavior_tree
-  luggage_av_msgs
   behaviortree_cpp_v3
 )
 
 pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
+rosidl_generate_interfaces(luggage_av_interfaces    #TODO:!!this is hardcoded. Fix it
+  "msg/RoutePoses.msg"
+  DEPENDENCIES geometry_msgs  # Add dependencies for message types used in your custom message
+)
+
+ament_export_dependencies(rosidl_default_runtime)
 
 # INSTALL
 install(
@@ -90,11 +85,11 @@ install(
 )
 
 install(
-  DIRECTORY configs launch maps parameters urdf worlds
+  DIRECTORY configs launch maps parameters urdf worlds msg
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS luggage_av wait_for_route_bt_node #wait_for_service_request_bt_node
+install(TARGETS luggage_av wait_for_route_bt_node
   EXPORT export_luggage_av
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -105,7 +100,7 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(hardware_interface)
   find_package(ament_cmake_gmock REQUIRED)
-  # the following line skips the linter which checks for copyrights
+# the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
   #set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
@@ -114,7 +109,6 @@ if(BUILD_TESTING)
   #set(ament_cmake_cpplint_FOUND TRUE)
   ament_lint_auto_find_test_dependencies()
 endif()
-
 
 # EXPORT
 ament_export_targets(export_luggage_av HAS_LIBRARY_TARGET)
