@@ -18,12 +18,23 @@ set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 find_package(geometry_msgs REQUIRED)  # Required for geometry_msgs/PoseStamped
+find_package(rclcpp REQUIRED)
+find_package(behaviortree_cpp_v3 REQUIRED)
+# find_package(luggage_av_msgs REQUIRED)
 
 foreach(Dependency IN ITEMS ${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
-include_directories(${Protobuf_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
+
+include_directories(
+  include
+  ${Protobuf_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${rclcpp_INCLUDE_DIRS}
+  ${behaviortree_cpp_v3_INCLUDE_DIRS}
+  ${geometry_msgs_INCLUDE_DIRS}
+  ${luggage_av_msgs_INCLUDE_DIRS}
+)
 
 # COMPILE
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_commands.proto ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_states.proto)
@@ -63,6 +74,10 @@ rosidl_generate_interfaces(luggage_av_interfaces    #TODO:!!this is hardcoded. F
 
 ament_export_dependencies(rosidl_default_runtime)
 
+# Add executable
+add_executable(behavior_tree_node behavior_trees/behavior_tree_execution.cpp)
+ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs)  # luggage_av_msgs
+
 # INSTALL
 install(
   DIRECTORY hardware_interface/include
@@ -80,6 +95,9 @@ install(TARGETS luggage_av
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
 )
+
+install(TARGETS behavior_tree_node
+  DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

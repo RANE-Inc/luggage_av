@@ -24,9 +24,10 @@ public:
 
 
 
-class WaitForConfirmation : public BT::ConditionNode::ConditionNode
+class WaitForConfirmation : public BT::ConditionNode
 {
 public:
+    ~ConditionNode() override = default;
     WaitForConfirmation(const std::string &name, const NodeConfiguration &config, const std::string &topic_suffix)
         : ConditionNode(name, config), confirmation_received_(false), topic_suffix_(topic_suffix)
     {

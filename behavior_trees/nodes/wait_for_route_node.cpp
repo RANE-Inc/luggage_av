@@ -41,6 +41,7 @@ public:
 
     NodeStatus tick() override
     {
+        RCLCPP_INFO(node_->get_logger(), "[%s] Waiting for route...", namespace_.c_str());
         executor_.spin_some();
         if (route_received_)
         {
@@ -51,7 +52,7 @@ public:
 
             return NodeStatus::SUCCESS;
         }
-        return NodeStatus::FAILURE;
+        return NodeStatus::RUNNING;
     }
 
 private:

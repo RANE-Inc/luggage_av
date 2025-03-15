@@ -1,3 +1,26 @@
+<!-- 
+<root>
+    <sequence>
+        <WaitForRoute pickup_pose="{pickup}" dropoff_pose="{dropoff}"/>
+        <NavigateToLocation name="{pickup}"/>
+        <WaitForPickupConfirmation/>
+        <NavigateToLocation name="{dropoff}"/>
+        <fallback>
+            <DetourHandler detour="{detour}">
+                <sequence>
+                    <PauseRoute/>
+                    <NavigateToLocation name="{detour}"/>
+                    <WaitForDetourConfirmation/>
+                    <ResumeRoute/>
+                </sequence>
+            </DetourHandler>
+        </fallback>
+        <WaitForDropOffConfirmation/>
+    </sequence>
+</root>
+-->
+
+
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4"
       main_tree_to_execute="root_bt">
