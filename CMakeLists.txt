@@ -7,30 +7,22 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
 endif()
 
 # DEPENDENCIES
-set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
+set(DEPENDENCIES
   hardware_interface
   pluginlib
   rclcpp
   rclcpp_lifecycle
   Protobuf
-)
-
-set(BEHAVIOR_TREE_INCLUDE_DEPENDS
-geometry_msgs   # Required for geometry_msgs/PoseStamped
-behaviortree_cpp_v3
-nav2_behavior_tree
-service_msgs
-# rclcpp # Required for rclcpp::Node, but included in HARDWARE_INTERFACE_INCLUDE_DEPENDS
+  geometry_msgs   # Required for geometry_msgs/PoseStamped
+  behaviortree_cpp_v3
+  nav2_behavior_tree
+  service_msgs
 )
 
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
-foreach(Dependency IN ITEMS ${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
-  find_package(${Dependency} REQUIRED)
-endforeach()
-
-foreach(Dependency IN ITEMS ${BEHAVIOR_TREE_INCLUDE_DEPENDS})
+foreach(Dependency IN ITEMS ${DEPENDENCIES})
   find_package(${Dependency} REQUIRED)
 endforeach()
 
@@ -53,20 +45,12 @@ add_library(  #define luggage_av as a SHARED library
   luggage_av SHARED
   hardware_interface/src/luggage_av_hardware_interface.cpp
   hardware_interface/src/cobs.c
+  behavior_trees/nodes/wait_for_route_node.cpp
   ${PROTO_SRCS}
 )
-ament_target_dependencies(  # adding PUBLIC dependencies to the luggage_av library
-  luggage_av PUBLIC
-  ${HARDWARE_INTERFACE_INCLUDE_DEPENDS}
-)
-
-add_library(
-  bt_nodes SHARED
-  behavior_trees/nodes/wait_for_route_node.cpp
-)
 ament_target_dependencies(
-  bt_nodes PUBLIC
-  ${BEHAVIOR_TREE_INCLUDE_DEPENDS}
+  luggage_av PUBLIC
+  ${DEPENDENCIES}
 )
 
 target_compile_features(luggage_av PUBLIC cxx_std_17)
@@ -101,7 +85,7 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS luggage_av bt_nodes
+install(TARGETS luggage_av
   EXPORT export_luggage_av
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -128,6 +112,6 @@ endif()
 
 # EXPORT
 ament_export_targets(export_luggage_av HAS_LIBRARY_TARGET)
-ament_export_dependencies(${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
+ament_export_dependencies(${DEPENDENCIES})
 ament_export_dependencies(rosidl_default_runtime)
 ament_package()
