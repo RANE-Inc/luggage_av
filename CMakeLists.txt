@@ -1,3 +1,4 @@
+# PROJECT SETUP
 cmake_minimum_required(VERSION 3.8)
 project(luggage_av)
 
@@ -14,38 +15,58 @@ set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
   Protobuf
 )
 
-# find dependencies
+set(BEHAVIOR_TREE_INCLUDE_DEPENDS
+geometry_msgs   # Required for geometry_msgs/PoseStamped
+behaviortree_cpp_v3
+nav2_behavior_tree
+service_msgs
+# rclcpp # Required for rclcpp::Node, but included in HARDWARE_INTERFACE_INCLUDE_DEPENDS
+)
+
 find_package(ament_cmake REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
-find_package(geometry_msgs REQUIRED)  # Required for geometry_msgs/PoseStamped
-find_package(rclcpp REQUIRED)
-find_package(behaviortree_cpp_v3 REQUIRED)
-# find_package(luggage_av_msgs REQUIRED)
 
 foreach(Dependency IN ITEMS ${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
   find_package(${Dependency} REQUIRED)
 endforeach()
 
+foreach(Dependency IN ITEMS ${BEHAVIOR_TREE_INCLUDE_DEPENDS})
+  find_package(${Dependency} REQUIRED)
+endforeach()
+
+# INCLUDE DIRECTORIES
 include_directories(
   include
   ${Protobuf_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${rclcpp_INCLUDE_DIRS}
-  ${behaviortree_cpp_v3_INCLUDE_DIRS}
+  #${behaviortree_cpp_v3_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
-  ${luggage_av_msgs_INCLUDE_DIRS}
+  # ${luggage_av_msgs_INCLUDE_DIRS}
 )
 
-# COMPILE
+# CODE GENERATION
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_commands.proto ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_states.proto)
 
-# Library for hardware interface
-add_library(
-  luggage_av
-  SHARED
+# LIBRARY/EXECUTABLE CONFIGURATION
+add_library(  #define luggage_av as a SHARED library
+  luggage_av SHARED
   hardware_interface/src/luggage_av_hardware_interface.cpp
   hardware_interface/src/cobs.c
   ${PROTO_SRCS}
+)
+ament_target_dependencies(  # adding PUBLIC dependencies to the luggage_av library
+  luggage_av PUBLIC
+  ${HARDWARE_INTERFACE_INCLUDE_DEPENDS}
+)
+
+add_library(
+  bt_nodes SHARED
+  behavior_trees/nodes/wait_for_route_node.cpp
+)
+ament_target_dependencies(
+  bt_nodes PUBLIC
+  ${BEHAVIOR_TREE_INCLUDE_DEPENDS}
 )
 
 target_compile_features(luggage_av PUBLIC cxx_std_17)
@@ -56,15 +77,6 @@ target_include_directories(luggage_av PUBLIC
   ${Protobuf_INCLUDE_DIRS}
 )
 
-ament_target_dependencies(
-  luggage_av PUBLIC
-  ${HARDWARE_INTERFACE_INCLUDE_DEPENDS}
-)
-
-# Library for the BT node
-find_package(nav2_behavior_tree REQUIRED)
-find_package(behaviortree_cpp_v3 REQUIRED)
-
 pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
 # rosidl_generate_interfaces(luggage_av_interfaces    #TODO:!!this is hardcoded. Fix it
@@ -74,9 +86,9 @@ pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
 ament_export_dependencies(rosidl_default_runtime)
 
-# Add executable
+# EXECUTABLE SETUP
 add_executable(behavior_tree_node behavior_trees/behavior_tree_execution.cpp)
-ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs)  # luggage_av_msgs
+ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs)
 
 # INSTALL
 install(
@@ -85,11 +97,11 @@ install(
 )
 
 install(
-  DIRECTORY configs launch maps parameters urdf worlds msg behavior_trees
+  DIRECTORY configs launch maps parameters urdf worlds msg behavior_trees behavior_trees/nodes
   DESTINATION share/${PROJECT_NAME}
 )
 
-install(TARGETS luggage_av
+install(TARGETS luggage_av bt_nodes
   EXPORT export_luggage_av
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -99,6 +111,7 @@ install(TARGETS luggage_av
 install(TARGETS behavior_tree_node
   DESTINATION lib/${PROJECT_NAME})
 
+# TESTS
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(hardware_interface)

@@ -30,6 +30,8 @@ public:
         auto tree_simplified = factory.createTreeFromFile(xml_file_path);
 
         factory.registerNodeType<WaitForRoute>("WaitForRoute");
+        // factory.registerFromPlugin("bt_nodes");
+        // factory.registerFromPlugin("/path/to/install/behavior_trees/bt_plugin.xml");
         // factory.registerSimpleCondition("WaitForRoute", std::bind(&WaitForRoute));
         // factory.registerSimpleAction("NavigateToLocation", std::bind(&NavigateToLocationFunction, std::placeholders::_1));
         // factory.registerSimpleAction("PauseRoute", std::bind(&PauseRouteFunction));
