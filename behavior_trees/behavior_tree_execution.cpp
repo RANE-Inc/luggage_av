@@ -35,11 +35,14 @@ public:
         // factory.registerSimpleAction("PauseRoute", std::bind(&PauseRouteFunction));
 
         auto tree_simplified = factory.createTreeFromFile(xml_file_path);
+        NodeStatus status;
 
-        while (rclcpp::ok() && tree_simplified.tickRoot() == NodeStatus::RUNNING)
+        while (rclcpp::ok() && (status = tree_simplified.tickRoot()) == NodeStatus::RUNNING)
         {
+            RCLCPP_INFO(this->get_logger(), "Tree is %d", (int)status);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
+        RCLCPP_ERROR(this->get_logger(), "Tree exited with status %d", (int)status);
     }
 };
 

@@ -4,6 +4,8 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 // #include "luggage_av/msg/RoutePoses.hpp" // Include the header for PickupDropoffPoses
 
+/// :TESTED:USING:      ros2 topic pub -1 /luggage_av/route std_msgs/msg/String "{data: 'Your message here'}"
+
 using namespace std::chrono_literals;
 
 namespace BT {
@@ -58,6 +60,7 @@ public:
             // setOutput("pickup_pose", pickup_pose_);
             // setOutput("dropoff_pose", dropoff_pose_);
 
+            RCLCPP_INFO(node_->get_logger(), "Route Recieved!");
             return NodeStatus::SUCCESS;
         }
         return NodeStatus::RUNNING;

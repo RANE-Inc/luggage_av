@@ -17,6 +17,7 @@ set(DEPENDENCIES
   behaviortree_cpp_v3
   nav2_behavior_tree
   service_msgs
+  # luggage_av_msgs
 )
 
 find_package(ament_cmake REQUIRED)
