@@ -6,7 +6,34 @@
 
 /// :TESTED:USING:      ros2 topic pub -1 /luggage_av/route std_msgs/msg/String "{data: 'Your message here'}"
 
-using namespace std::chrono_literals;
+
+const geometry_msgs::msg::PoseStamped DEFAULT_PICKUP_POSE = [] {
+    geometry_msgs::msg::PoseStamped pose;
+    pose.header.frame_id = "map";
+    pose.pose.position.x = 0.0;
+    pose.pose.position.y = 0.0;
+    pose.pose.position.z = 0.0;
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    return pose;
+}();
+
+const geometry_msgs::msg::PoseStamped DEFAULT_DROPOFF_POSE = [] {
+    geometry_msgs::msg::PoseStamped pose;
+    pose.header.frame_id = "map";
+    pose.pose.position.x = 1.0;
+    pose.pose.position.y = 1.0;
+    pose.pose.position.z = 0.0;
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    return pose;
+}();
+
+
 
 namespace BT {
 
@@ -17,8 +44,8 @@ public:
         : ConditionNode(name, config), route_received_(false)
     {
         node_ = rclcpp::Node::make_shared("wait_for_route");
-        namespace_ = node_->get_namespace(); // Auto-detect namespace
-        if (namespace_ == "/") namespace_ = ""; // Avoid double slashes
+        namespace_ = node_->get_namespace();
+        if (namespace_ == "/") namespace_ = "";
 
         std::string topic = namespace_.empty() ? "/route" : namespace_ + "/route";
 
@@ -26,7 +53,9 @@ public:
             topic, 10, [this](const std_msgs::msg::String::SharedPtr msg)
             {
                 RCLCPP_INFO(node_->get_logger(), "[%s] Received message: %s", namespace_.c_str(), msg->data.c_str());
-                // For demonstration purposes, we set route_received_ to true when a message is received
+                // For demonstration purposes, we set our poses to some filler ones
+                this->pickup_pose_ = DEFAULT_PICKUP_POSE;
+                this->dropoff_pose_ = DEFAULT_DROPOFF_POSE;
                 this->route_received_ = true;
             });
         // subscriber_ = node_->create_subscription<luggage_av::msg::RoutePoses>(
@@ -44,9 +73,8 @@ public:
     ~WaitForRoute() noexcept override = default; // Explicitly declare the destructor
 
     static PortsList providedPorts() { 
-        return {};
-        // return {OutputPort<geometry_msgs::msg::PoseStamped>("pickup_pose"),
-        //         OutputPort<geometry_msgs::msg::PoseStamped>("dropoff_pose")};
+        return {OutputPort<geometry_msgs::msg::PoseStamped>("pickup_pose"),
+                OutputPort<geometry_msgs::msg::PoseStamped>("dropoff_pose")};
     }
 
     NodeStatus tick() override
@@ -57,8 +85,8 @@ public:
         {
             route_received_ = false; // Reset the flag
 
-            // setOutput("pickup_pose", pickup_pose_);
-            // setOutput("dropoff_pose", dropoff_pose_);
+            setOutput("pickup_pose", pickup_pose_);
+            setOutput("dropoff_pose", dropoff_pose_);
 
             RCLCPP_INFO(node_->get_logger(), "Route Recieved!");
             return NodeStatus::SUCCESS;

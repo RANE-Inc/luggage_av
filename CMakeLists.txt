@@ -10,14 +10,18 @@ endif()
 set(DEPENDENCIES
   hardware_interface
   pluginlib
-  rclcpp
   rclcpp_lifecycle
   Protobuf
-  geometry_msgs   # Required for geometry_msgs/PoseStamped
-  behaviortree_cpp_v3
   nav2_behavior_tree
   service_msgs
+  tf2
+  yaml-cpp
   # luggage_av_msgs
+  rclcpp
+  behaviortree_cpp_v3
+  geometry_msgs   # Required for geometry_msgs/PoseStamped
+  nav2_msgs
+  rclcpp_action
 )
 
 find_package(ament_cmake REQUIRED)
@@ -33,9 +37,9 @@ include_directories(
   ${Protobuf_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${rclcpp_INCLUDE_DIRS}
-  #${behaviortree_cpp_v3_INCLUDE_DIRS}
   ${geometry_msgs_INCLUDE_DIRS}
-  # ${luggage_av_msgs_INCLUDE_DIRS}
+  ${nav2_msgs_INCLUDE_DIRS}
+  ${rclcpp_action_INCLUDE_DIRS}
 )
 
 # CODE GENERATION
@@ -47,6 +51,8 @@ add_library(  #define luggage_av as a SHARED library
   hardware_interface/src/luggage_av_hardware_interface.cpp
   hardware_interface/src/cobs.c
   behavior_trees/nodes/wait_for_route_node.cpp
+  behavior_trees/nodes/tbn.cpp
+  behavior_trees/nodes/navigate_to_location_node.cpp
   ${PROTO_SRCS}
 )
 ament_target_dependencies(
@@ -64,16 +70,11 @@ target_include_directories(luggage_av PUBLIC
 
 pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
-# rosidl_generate_interfaces(luggage_av_interfaces    #TODO:!!this is hardcoded. Fix it
-#   "msg/RoutePoses.msg"
-#   DEPENDENCIES geometry_msgs  # Add dependencies for message types used in your custom message
-# )
-
 ament_export_dependencies(rosidl_default_runtime)
 
 # EXECUTABLE SETUP
 add_executable(behavior_tree_node behavior_trees/behavior_tree_execution.cpp)
-ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs)
+ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs nav2_msgs rclcpp_action)
 
 # INSTALL
 install(

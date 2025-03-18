@@ -1,18 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<root BTCPP_format="4" main_tree_to_execute="root_bt">
-  <BehaviorTree ID="root_bt">
-      <WaitForRoute/>
-  </BehaviorTree>
-</root>
-
-
 <!-- <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" main_tree_to_execute="root_bt">
   <BehaviorTree ID="root_bt">
-    <sequence>
       <WaitForRoute pickup_pose="{pickup}" dropoff_pose="{dropoff}"/>
-      <NavigateToLocation name="{pickup}"/>
-      <NavigateToLocation name="{dropoff}"/>
-    </sequence>
   </BehaviorTree>
 </root> -->
+
+
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" main_tree_to_execute="root_bt">
+  <BehaviorTree ID="root_bt">
+    <Sequence>
+      <WaitForRoute pickup_pose="{pickup}" dropoff_pose="{dropoff}"/>
+      <Action ID="NavigateToPose">
+        <input_port name="goal">{pickup}</input_port>
+      </Action>
+      <Action ID="NavigateToPose">
+        <input_port name="goal">{dropoff}</input_port>
+      </Action>
+    </Sequence>
+  </BehaviorTree>
+</root>

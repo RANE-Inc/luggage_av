@@ -1,6 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "nodes/wait_for_route_node.cpp"
+#include "nodes/navigate_to_location_node.cpp"
 
 using namespace BT;
 
@@ -28,11 +29,9 @@ public:
         BehaviorTreeFactory factory;
 
         factory.registerNodeType<WaitForRoute>("WaitForRoute");
-        // factory.registerFromPlugin("bt_nodes");
-        // factory.registerFromPlugin("/path/to/install/behavior_trees/bt_plugin.xml");
-        // factory.registerSimpleCondition("WaitForRoute", std::bind(&WaitForRoute));
-        // factory.registerSimpleAction("NavigateToLocation", std::bind(&NavigateToLocationFunction, std::placeholders::_1));
-        // factory.registerSimpleAction("PauseRoute", std::bind(&PauseRouteFunction));
+        factory.registerBehaviorTreeFromFile("nav2_tree_nodes.xml");
+        factory.registerNodeType<NavigateToLocation>("NavigateToLocation");
+        // factory.registerNodeType<NavigateToLocation>("NavigateToLocation");
 
         auto tree_simplified = factory.createTreeFromFile(xml_file_path);
         NodeStatus status;
@@ -42,7 +41,7 @@ public:
             RCLCPP_INFO(this->get_logger(), "Tree is %d", (int)status);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        RCLCPP_ERROR(this->get_logger(), "Tree exited with status %d", (int)status);
+        RCLCPP_INFO(this->get_logger(), "Tree exited with status %d", (int)status);
     }
 };
 
