@@ -10,7 +10,7 @@
 const geometry_msgs::msg::PoseStamped DEFAULT_PICKUP_POSE = [] {
     geometry_msgs::msg::PoseStamped pose;
     pose.header.frame_id = "map";
-    pose.pose.position.x = 0.0;
+    pose.pose.position.x = 2.0;
     pose.pose.position.y = 0.0;
     pose.pose.position.z = 0.0;
     pose.pose.orientation.x = 0.0;
@@ -23,7 +23,7 @@ const geometry_msgs::msg::PoseStamped DEFAULT_PICKUP_POSE = [] {
 const geometry_msgs::msg::PoseStamped DEFAULT_DROPOFF_POSE = [] {
     geometry_msgs::msg::PoseStamped pose;
     pose.header.frame_id = "map";
-    pose.pose.position.x = 1.0;
+    pose.pose.position.x = -2.0;
     pose.pose.position.y = 1.0;
     pose.pose.position.z = 0.0;
     pose.pose.orientation.x = 0.0;
@@ -49,6 +49,8 @@ public:
 
         std::string topic = namespace_.empty() ? "/route" : namespace_ + "/route";
 
+        RCLCPP_INFO(node_->get_logger(), "Creating subscriber for %s topic.", topic.c_str());
+
         subscriber_ = node_->create_subscription<std_msgs::msg::String>(
             topic, 10, [this](const std_msgs::msg::String::SharedPtr msg)
             {
@@ -73,13 +75,15 @@ public:
     ~WaitForRoute() noexcept override = default; // Explicitly declare the destructor
 
     static PortsList providedPorts() { 
-        return {OutputPort<geometry_msgs::msg::PoseStamped>("pickup_pose"),
-                OutputPort<geometry_msgs::msg::PoseStamped>("dropoff_pose")};
+        return {
+            OutputPort<geometry_msgs::msg::PoseStamped>("pickup_pose"),
+            OutputPort<geometry_msgs::msg::PoseStamped>("dropoff_pose")
+        };
     }
 
     NodeStatus tick() override
     {
-        RCLCPP_INFO(node_->get_logger(), "[%s] Waiting for route...", namespace_.c_str());
+        RCLCPP_DEBUG(node_->get_logger(), "[%s] Waiting for route...", namespace_.c_str());
         executor_.spin_some();
         if (route_received_)
         {

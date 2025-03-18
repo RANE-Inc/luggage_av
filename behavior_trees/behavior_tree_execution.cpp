@@ -12,7 +12,6 @@ public:
     {
         // Get the XML file path from the launch arguments
         std::string xml_file_path;
-
         this->declare_parameter<std::string>("bt_xml_file", "");
         this->get_parameter("bt_xml_file", xml_file_path);
 
@@ -29,19 +28,19 @@ public:
         BehaviorTreeFactory factory;
 
         factory.registerNodeType<WaitForRoute>("WaitForRoute");
-        factory.registerBehaviorTreeFromFile("nav2_tree_nodes.xml");
+        // factory.registerBehaviorTreeFromFile("nav2_tree_nodes.xml");
         factory.registerNodeType<NavigateToLocation>("NavigateToLocation");
-        // factory.registerNodeType<NavigateToLocation>("NavigateToLocation");
 
         auto tree_simplified = factory.createTreeFromFile(xml_file_path);
         NodeStatus status;
 
+        RCLCPP_INFO(this->get_logger(), "Starting Tree tick loop");
         while (rclcpp::ok() && (status = tree_simplified.tickRoot()) == NodeStatus::RUNNING)
         {
-            RCLCPP_INFO(this->get_logger(), "Tree is %d", (int)status);
+            RCLCPP_DEBUG(this->get_logger(), "Tree tick state: %d", (int)status);
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
-        RCLCPP_INFO(this->get_logger(), "Tree exited with status %d", (int)status);
+        RCLCPP_INFO(this->get_logger(), "Tree exited with tick state %d", (int)status);
     }
 };
 
