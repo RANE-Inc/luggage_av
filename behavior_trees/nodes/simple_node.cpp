@@ -3,6 +3,19 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <nav2_msgs/action/navigate_to_pose.hpp>
 
+const geometry_msgs::msg::PoseStamped DEFAULT_PICKUP_POSE = [] {
+    geometry_msgs::msg::PoseStamped pose;
+    pose.header.frame_id = "luggage_av/map";
+    pose.pose.position.x = 2.0;
+    pose.pose.position.y = 0.0;
+    pose.pose.position.z = 0.0;
+    pose.pose.orientation.x = 0.0;
+    pose.pose.orientation.y = 0.0;
+    pose.pose.orientation.z = 0.0;
+    pose.pose.orientation.w = 1.0;
+    return pose;
+}();
+
 class SimpleNode : public rclcpp::Node
 {
 public:
@@ -12,7 +25,15 @@ public:
     SimpleNode()
         : Node("simple_node")
     {
-        this->client_ptr_ = rclcpp_action::create_client<NavigateToPose>(this, "/luggage_av/navigate_to_pose");
+        namespace_ = this->get_namespace();     // I have debugged this to death. the namespace is exactly what you think
+        if (namespace_ == "/") namespace_ = "";
+        std::string action_name = namespace_.empty() ? "/navigate_to_pose" : namespace_ + "/navigate_to_pose";
+        std::string frame_id = namespace_.empty() ? "map" : namespace_.substr(1) + "/map";
+
+        RCLCPP_INFO(this->get_logger(), "Action topic: %s", action_name.c_str());
+        RCLCPP_INFO(this->get_logger(), "Namespace: %s", namespace_.c_str());
+
+        this->client_ptr_ = rclcpp_action::create_client<NavigateToPose>(this, action_name);
 
         if (!this->client_ptr_->wait_for_action_server(std::chrono::seconds(10))) {
             RCLCPP_ERROR(this->get_logger(), "Action server not available after waiting");
@@ -20,12 +41,7 @@ public:
         }
 
         auto goal_msg = NavigateToPose::Goal();
-        goal_msg.pose.header.frame_id = "luggage_av/map";
-        goal_msg.pose.pose.position.x = 2.0;
-        goal_msg.pose.pose.position.y = 0.0;
-        goal_msg.pose.pose.position.z = 0.0;
-        goal_msg.pose.pose.orientation.z = 0.0;
-        goal_msg.pose.pose.orientation.w = 1.0;
+        goal_msg.pose = DEFAULT_PICKUP_POSE;
 
         RCLCPP_INFO(this->get_logger(), "Sending goal");
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
@@ -40,6 +56,7 @@ public:
     }
 
 private:
+    std::string namespace_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_ptr_;
 
     void goal_response_callback(std::shared_ptr<GoalHandleNavigateToPose> goal_handle)
