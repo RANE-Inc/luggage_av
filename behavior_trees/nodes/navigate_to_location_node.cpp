@@ -18,7 +18,7 @@ public:
     NavigateToLocation(const std::string &name, const NodeConfiguration &config)
     : StatefulActionNode(name, config), goal_sent_(false)
     {
-        node_ = rclcpp::Node::make_shared("navigate_to_location_node");
+        node_ = rclcpp::Node::make_shared("navigate_test_node");
         namespace_ = node_->get_namespace();
         if (namespace_ == "/") namespace_ = "";
         std::string topic = namespace_.empty() ? "/navigate_to_pose" : namespace_ + "/navigate_to_pose";
@@ -120,7 +120,6 @@ public:
 private:
     rclcpp::Node::SharedPtr node_;      //!!Here rename this
     std::string namespace_;
-    geometry_msgs::msg::PoseStamped ppose_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr action_client_;
     bool goal_sent_;    
     geometry_msgs::msg::PoseStamped goal_pose_;

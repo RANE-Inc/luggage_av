@@ -10,6 +10,10 @@ class BehaviorTreeNode : public rclcpp::Node
 public:
     BehaviorTreeNode() : Node("behavior_tree_node")
     {
+        /*
+            making this a singleton did not prevent 3 instances from being creates
+        */
+
         // Get the XML file path from the launch arguments
         std::string xml_file_path;
         this->declare_parameter<std::string>("bt_xml_file", "");
@@ -31,7 +35,7 @@ public:
         // factory.registerBehaviorTreeFromFile("nav2_tree_nodes.xml");
         factory.registerNodeType<NavigateToLocation>("NavigateToLocation");
 
-        auto tree_simplified = factory.createTreeFromFile(xml_file_path);
+        auto tree_simplified = factory.createTreeFromFile(xml_file_path);   //!!here    this creates 3 sinstances of each
         NodeStatus status;
 
         RCLCPP_INFO(this->get_logger(), "Starting Tree tick loop");
@@ -46,6 +50,10 @@ public:
 
 int main(int argc, char **argv)
 {
+    for (int i = 0; i < argc; ++i)
+    {
+        RCLCPP_INFO(rclcpp::get_logger("rclcpp"), "argv %s", argv[i]);
+    }
     rclcpp::init(argc, argv);
     auto node = std::make_shared<BehaviorTreeNode>();
     rclcpp::spin(node);
