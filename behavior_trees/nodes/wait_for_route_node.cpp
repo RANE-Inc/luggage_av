@@ -2,7 +2,6 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/string.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
-// #include "luggage_av/msg/RoutePoses.hpp" // Include the header for PickupDropoffPoses
 
 /// :TESTED:USING:      ros2 topic pub -1 /luggage_av/route std_msgs/msg/String "{data: 'Your message here'}"
 

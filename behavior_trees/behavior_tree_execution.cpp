@@ -1,7 +1,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "nodes/wait_for_route_node.cpp"
-#include "nodes/navigate_to_location_node.cpp"
+#include "nodes/navigate_to_location_bt_node.cpp"
 #include "nodes/passenger_confirmation_condition_node.cpp"
 
 using namespace BT;

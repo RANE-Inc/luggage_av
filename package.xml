@@ -12,6 +12,7 @@
 
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
+  <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
   <depend>behaviortree_cpp_v3</depend>
   <depend>service_msgs</depend>
@@ -19,7 +20,6 @@
   <depend>luggage_av_msgs</depend>
 
   <build_depend>geometry_msgs</build_depend>
-  <build_depend>rclcpp</build_depend>
   <build_depend>nav2_behavior_tree</build_depend>
 
   <exec_depend>ros2launch</exec_depend>

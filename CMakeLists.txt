@@ -13,13 +13,12 @@ set(DEPENDENCIES
   rclcpp
   rclcpp_lifecycle
   Protobuf
-  geometry_msgs   # Required for geometry_msgs/PoseStamped
+  geometry_msgs
   behaviortree_cpp_v3
   nav2_behavior_tree
   service_msgs
    tf2
    yaml-cpp
-  # luggage_av_msgs
    nav2_msgs
    rclcpp_action
 )
@@ -46,13 +45,13 @@ include_directories(
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_commands.proto ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_states.proto)
 
 # LIBRARY/EXECUTABLE CONFIGURATION
-add_library(  #define luggage_av as a SHARED library
+add_library(
   luggage_av SHARED
   hardware_interface/src/luggage_av_hardware_interface.cpp
   hardware_interface/src/cobs.c
   behavior_trees/nodes/wait_for_route_node.cpp
   behavior_trees/nodes/passenger_confirmation_condition_node.cpp
-  behavior_trees/nodes/navigate_to_location_node.cpp
+  behavior_trees/nodes/navigate_to_location_bt_node.cpp
   ${PROTO_SRCS}
 )
 ament_target_dependencies(
@@ -83,7 +82,7 @@ install(
 )
 
 install(
-  DIRECTORY configs launch maps parameters urdf worlds msg behavior_trees behavior_trees/nodes
+  DIRECTORY configs launch maps parameters urdf worlds behavior_trees behavior_trees/nodes
   DESTINATION share/${PROJECT_NAME}
 )
 

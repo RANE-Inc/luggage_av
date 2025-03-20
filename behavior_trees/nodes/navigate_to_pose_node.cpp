@@ -4,7 +4,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <nav2_msgs/action/navigate_to_pose.hpp>
 
-class SimpleNode : public rclcpp::Node
+class NavigateToPoseNode : public rclcpp::Node
 {
 public:
     enum class NavigationStatus
@@ -25,8 +25,8 @@ public:
     using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
     using NavigationStatusCallback = std::function<void(NavigationStatus)>;
 
-    SimpleNode(PoseStamped goal_pose)
-        : Node("simple_node")
+    NavigateToPoseNode(PoseStamped goal_pose)
+        : Node("navigate_to_pose_node")
     {
         namespace_ = this->get_namespace();
         if (namespace_ == "/") namespace_ = "";
@@ -49,11 +49,11 @@ public:
         RCLCPP_INFO(this->get_logger(), "Sending goal");
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback =
-            std::bind(&SimpleNode::goal_response_callback, this, std::placeholders::_1);
+            std::bind(&NavigateToPoseNode::goal_response_callback, this, std::placeholders::_1);
         send_goal_options.feedback_callback =
-            std::bind(&SimpleNode::feedback_callback, this, std::placeholders::_1, std::placeholders::_2);
+            std::bind(&NavigateToPoseNode::feedback_callback, this, std::placeholders::_1, std::placeholders::_2);
         send_goal_options.result_callback =
-            std::bind(&SimpleNode::result_callback, this, std::placeholders::_1);
+            std::bind(&NavigateToPoseNode::result_callback, this, std::placeholders::_1);
 
         this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
         navigation_status_ = NavigationStatus::REQUESTED;
