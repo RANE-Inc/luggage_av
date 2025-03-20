@@ -83,7 +83,7 @@ private:
         GoalHandleNavigateToPose::SharedPtr,
         const std::shared_ptr<const NavigateToPose::Feedback> feedback)
     {
-        RCLCPP_INFO(this->get_logger(), "Current position: (%.2f, %.2f)", feedback->current_pose.pose.position.x, feedback->current_pose.pose.position.y);
+        RCLCPP_DEBUG(this->get_logger(), "Current position: (%.2f, %.2f)", feedback->current_pose.pose.position.x, feedback->current_pose.pose.position.y);
         navigation_status_ = NavigationStatus::NAVIGATING;
     }
 
@@ -108,6 +108,5 @@ private:
                 navigation_status_ = NavigationStatus::UNKNOWN_ERROR;
                 break;
         }
-        rclcpp::shutdown();
     }
 };
