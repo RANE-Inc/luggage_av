@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" main_tree_to_execute="root_bt">
   <BehaviorTree ID="root_bt">
-    <Sequence>
-      <WaitForRoute pickup_pose="{pickup}" dropoff_pose="{dropoff}"/> 
-      <NavigateToLocation goal="{pickup}"/> 
-      <NavigateToLocation goal="{dropoff}"/> 
-    </Sequence>
+    <Fallback>
+      <Sequence>
+        <WaitForRoute pickup_pose="{pickup}" dropoff_pose="{dropoff}"/> 
+        <NavigateToLocation goal="{pickup}"/> 
+        <WaitForPassengerConfirmation/>
+        <NavigateToLocation goal="{dropoff}"/> 
+        <WaitForPassengerConfirmation/>
+        <NavigateToLocation/> 
+      </Sequence>
+      <NavigateToLocation/> 
+    </Fallback>
   </BehaviorTree>
 </root>

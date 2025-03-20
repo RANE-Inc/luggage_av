@@ -51,9 +51,8 @@ add_library(  #define luggage_av as a SHARED library
   hardware_interface/src/luggage_av_hardware_interface.cpp
   hardware_interface/src/cobs.c
   behavior_trees/nodes/wait_for_route_node.cpp
-   behavior_trees/nodes/tbn.cpp
-   behavior_trees/nodes/navigate_to_location_node.cpp
-   behavior_trees/nodes/navigate_test_node.cpp
+  behavior_trees/nodes/passenger_confirmation_condition_node.cpp
+  behavior_trees/nodes/navigate_to_location_node.cpp
   ${PROTO_SRCS}
 )
 ament_target_dependencies(
@@ -77,12 +76,6 @@ ament_export_dependencies(rosidl_default_runtime)
 add_executable(behavior_tree_node behavior_trees/behavior_tree_execution.cpp)
 ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs nav2_msgs rclcpp_action)
 
-add_executable(navigate_test_node behavior_trees/nodes/navigate_test_node.cpp) #zzTemp remove this
-ament_target_dependencies(navigate_test_node rclcpp geometry_msgs nav2_msgs rclcpp_action)
-
-# add_executable(simple_node behavior_trees/nodes/simple_node.cpp) #zzTemp remove this
-# ament_target_dependencies(simple_node rclcpp geometry_msgs nav2_msgs rclcpp_action)
-
 # INSTALL
 install(
   DIRECTORY hardware_interface/include
@@ -103,10 +96,6 @@ install(TARGETS luggage_av
 
 install(TARGETS behavior_tree_node
   DESTINATION lib/${PROJECT_NAME})
-install(TARGETS navigate_test_node
-  DESTINATION lib/${PROJECT_NAME})
-# install(TARGETS simple_node
-#   DESTINATION lib/${PROJECT_NAME})
 
 # TESTS
 if(BUILD_TESTING)

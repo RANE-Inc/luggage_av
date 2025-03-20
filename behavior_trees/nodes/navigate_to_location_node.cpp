@@ -8,6 +8,7 @@
 
 
 namespace BT {
+using PoseStamped = geometry_msgs::msg::PoseStamped;
 using NavigateToPose = nav2_msgs::action::NavigateToPose;
 using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
 
@@ -24,17 +25,17 @@ public:
 
     static PortsList providedPorts()
     {
-        return {InputPort<geometry_msgs::msg::PoseStamped>("goal")};
+        return {InputPort<PoseStamped>("goal")};
     }
 
 
         // Method overrides
     NodeStatus onStart() override
     {
-        if (!getInput<geometry_msgs::msg::PoseStamped>("goal", goal_pose_))
+        if (!getInput<PoseStamped>("goal", goal_pose_))
         {
-            RCLCPP_ERROR(rclcpp::get_logger("NavigateToLocation"), "NavigateToLocation: failed to get goal pose");
-            return NodeStatus::FAILURE;
+            goal_pose_ = DEFAULT_DOCKING_POSE;
+            RCLCPP_WARN(rclcpp::get_logger("NavigateToLocation"), "NavigateToLocation: goal pose not provided. Using DEFAULT_DOCKING_POSE");
         }
         RCLCPP_INFO(rclcpp::get_logger("NavigateToLocation"), "Goal Pose: [x: %f, y: %f, z: %f]", goal_pose_.pose.position.x, goal_pose_.pose.position.y, goal_pose_.pose.position.z);
 
@@ -91,8 +92,18 @@ public:
 private:
     std::shared_ptr<SimpleNode> simple_node_;
     std::thread spin_thread_;
-    geometry_msgs::msg::PoseStamped goal_pose_;
+    PoseStamped goal_pose_;
     SimpleNode::NavigationStatus navigationStatus = SimpleNode::NavigationStatus::UNINITIALIZED;
+
+
+
+    const PoseStamped DEFAULT_DOCKING_POSE = [] {
+        PoseStamped pose;
+        pose.header.frame_id = "luggage_av/map";
+        pose.pose.position.x = 0.0;
+        pose.pose.position.y = 0.0;
+        return pose;
+    }();
 };
 
 }   // BT namespace

@@ -2,6 +2,7 @@
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "nodes/wait_for_route_node.cpp"
 #include "nodes/navigate_to_location_node.cpp"
+#include "nodes/passenger_confirmation_condition_node.cpp"
 
 using namespace BT;
 
@@ -32,6 +33,7 @@ public:
         BehaviorTreeFactory factory;
 
         factory.registerNodeType<WaitForRoute>("WaitForRoute");
+        factory.registerNodeType<WaitForPassengerConfirmation>("WaitForPassengerConfirmation");
         // factory.registerBehaviorTreeFromFile("nav2_tree_nodes.xml");
         factory.registerNodeType<NavigateToLocation>("NavigateToLocation");
 
