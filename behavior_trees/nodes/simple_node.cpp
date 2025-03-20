@@ -1,31 +1,34 @@
 #include <memory>
+#include <functional>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <nav2_msgs/action/navigate_to_pose.hpp>
 
-const geometry_msgs::msg::PoseStamped DEFAULT_PICKUP_POSE = [] {
-    geometry_msgs::msg::PoseStamped pose;
-    pose.header.frame_id = "luggage_av/map";
-    pose.pose.position.x = 2.0;
-    pose.pose.position.y = 0.0;
-    pose.pose.position.z = 0.0;
-    pose.pose.orientation.x = 0.0;
-    pose.pose.orientation.y = 0.0;
-    pose.pose.orientation.z = 0.0;
-    pose.pose.orientation.w = 1.0;
-    return pose;
-}();
-
 class SimpleNode : public rclcpp::Node
 {
 public:
+    enum class NavigationStatus
+    {
+        UNINITIALIZED,
+        REQUESTED,
+        ACCEPTED,
+        REJECTED,
+        NAVIGATING,
+        SUCCEEDED,
+        ABORTED,
+        CANCELED,
+        UNKNOWN_ERROR,
+    };
+
+    using PoseStamped = geometry_msgs::msg::PoseStamped;
     using NavigateToPose = nav2_msgs::action::NavigateToPose;
     using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
+    using NavigationStatusCallback = std::function<void(NavigationStatus)>;
 
-    SimpleNode()
+    SimpleNode(PoseStamped goal_pose)
         : Node("simple_node")
     {
-        namespace_ = this->get_namespace();     // I have debugged this to death. the namespace is exactly what you think
+        namespace_ = this->get_namespace();
         if (namespace_ == "/") namespace_ = "";
         std::string action_name = namespace_.empty() ? "/navigate_to_pose" : namespace_ + "/navigate_to_pose";
         std::string frame_id = namespace_.empty() ? "map" : namespace_.substr(1) + "/map";
@@ -41,7 +44,7 @@ public:
         }
 
         auto goal_msg = NavigateToPose::Goal();
-        goal_msg.pose = DEFAULT_PICKUP_POSE;
+        goal_msg.pose = goal_pose;
 
         RCLCPP_INFO(this->get_logger(), "Sending goal");
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
@@ -53,18 +56,26 @@ public:
             std::bind(&SimpleNode::result_callback, this, std::placeholders::_1);
 
         this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
+        navigation_status_ = NavigationStatus::REQUESTED;
+    }
+
+    NavigationStatus getNavigationStatus() {
+        return navigation_status_;
     }
 
 private:
     std::string namespace_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_ptr_;
+    NavigationStatus navigation_status_ = NavigationStatus::UNINITIALIZED;
 
     void goal_response_callback(std::shared_ptr<GoalHandleNavigateToPose> goal_handle)
     {
         if (!goal_handle) {
             RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
+            navigation_status_ = NavigationStatus::REJECTED;
         } else {
             RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
+            navigation_status_ = NavigationStatus::ACCEPTED;
         }
     }
 
@@ -73,33 +84,30 @@ private:
         const std::shared_ptr<const NavigateToPose::Feedback> feedback)
     {
         RCLCPP_INFO(this->get_logger(), "Current position: (%.2f, %.2f)", feedback->current_pose.pose.position.x, feedback->current_pose.pose.position.y);
+        navigation_status_ = NavigationStatus::NAVIGATING;
     }
 
     void result_callback(const GoalHandleNavigateToPose::WrappedResult & result)
     {
+        navigation_status_ = NavigationStatus::SUCCEEDED;
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
                 RCLCPP_INFO(this->get_logger(), "Goal was successful");
+                navigation_status_ = NavigationStatus::SUCCEEDED;
                 break;
             case rclcpp_action::ResultCode::ABORTED:
                 RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
+                navigation_status_ = NavigationStatus::ABORTED;
                 break;
             case rclcpp_action::ResultCode::CANCELED:
                 RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
+                navigation_status_ = NavigationStatus::CANCELED;
                 break;
             default:
                 RCLCPP_ERROR(this->get_logger(), "Unknown result code");
+                navigation_status_ = NavigationStatus::UNKNOWN_ERROR;
                 break;
         }
         rclcpp::shutdown();
     }
 };
-
-int main(int argc, char ** argv)
-{
-    rclcpp::init(argc, argv);
-    auto node = std::make_shared<SimpleNode>();
-    rclcpp::spin(node);
-    rclcpp::shutdown();
-    return 0;
-}

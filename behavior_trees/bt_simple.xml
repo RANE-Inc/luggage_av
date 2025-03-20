@@ -4,6 +4,7 @@
     <Sequence>
       <WaitForRoute pickup_pose="{pickup}" dropoff_pose="{dropoff}"/> 
       <NavigateToLocation goal="{pickup}"/> 
+      <!-- <NavigateToLocation goal="{dropoff}"/>  -->
     </Sequence>
   </BehaviorTree>
 </root>

@@ -80,8 +80,8 @@ ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry
 add_executable(navigate_test_node behavior_trees/nodes/navigate_test_node.cpp) #zzTemp remove this
 ament_target_dependencies(navigate_test_node rclcpp geometry_msgs nav2_msgs rclcpp_action)
 
-add_executable(simple_node behavior_trees/nodes/simple_node.cpp) #zzTemp remove this
-ament_target_dependencies(simple_node rclcpp geometry_msgs nav2_msgs rclcpp_action)
+# add_executable(simple_node behavior_trees/nodes/simple_node.cpp) #zzTemp remove this
+# ament_target_dependencies(simple_node rclcpp geometry_msgs nav2_msgs rclcpp_action)
 
 # INSTALL
 install(
@@ -105,8 +105,8 @@ install(TARGETS behavior_tree_node
   DESTINATION lib/${PROJECT_NAME})
 install(TARGETS navigate_test_node
   DESTINATION lib/${PROJECT_NAME})
-install(TARGETS simple_node
-  DESTINATION lib/${PROJECT_NAME})
+# install(TARGETS simple_node
+#   DESTINATION lib/${PROJECT_NAME})
 
 # TESTS
 if(BUILD_TESTING)

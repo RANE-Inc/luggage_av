@@ -23,8 +23,8 @@ const geometry_msgs::msg::PoseStamped DEFAULT_PICKUP_POSE = [] {
 const geometry_msgs::msg::PoseStamped DEFAULT_DROPOFF_POSE = [] {
     geometry_msgs::msg::PoseStamped pose;
     pose.header.frame_id = "luggage_av/map";
-    pose.pose.position.x = -2.0;
-    pose.pose.position.y = 1.0;
+    pose.pose.position.x = 0.0;
+    pose.pose.position.y = 0.0;
     pose.pose.position.z = 0.0;
     pose.pose.orientation.x = 0.0;
     pose.pose.orientation.y = 0.0;

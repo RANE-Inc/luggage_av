@@ -19,13 +19,6 @@ def generate_launch_description():
             namespace=namespace,
             parameters=[{"bt_xml_file": bt_xml_file}]
         )
-    nav_test_execution = Node(
-            package='luggage_av',
-            executable='navigate_test_node',
-            name='navigate_test_node',
-            output='screen',
-            namespace=namespace,
-        )
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -38,6 +31,5 @@ def generate_launch_description():
             default_value=os.path.join(package_dir, "behavior_trees", "bt_simple.xml"),
             description="Path to the behavior tree XML file"
         ),
-        # bt_execution,
-        nav_test_execution,
+        bt_execution,
     ])
