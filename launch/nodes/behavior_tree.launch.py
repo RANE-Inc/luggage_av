@@ -10,7 +10,6 @@ def generate_launch_description():
 
     namespace = LaunchConfiguration("namespace")
     bt_xml_file = LaunchConfiguration("bt_xml_file")
-    nav2_tree_nodes_xml_file = LaunchConfiguration("nav2_tree_nodes_xml_file")
 
     bt_execution = Node(
             package='luggage_av',
@@ -18,7 +17,7 @@ def generate_launch_description():
             name='behavior_tree_node',
             output='screen',
             namespace=namespace,
-            parameters=[{"bt_xml_file": bt_xml_file}, {"nav2_tree_nodes_xml_file": nav2_tree_nodes_xml_file}]
+            parameters=[{"bt_xml_file": bt_xml_file}]
         )
 
     return LaunchDescription([
@@ -31,11 +30,6 @@ def generate_launch_description():
             "bt_xml_file",
             default_value=os.path.join(package_dir, "behavior_trees", "bt_simple.xml"),
             description="Path to the behavior tree XML file"
-        ),
-        DeclareLaunchArgument(
-            "nav2_tree_nodes_xml_file",
-            default_value=os.path.join(package_dir, "behavior_trees", "nav2_tree_nodes.xml"),
-            description="Path to the nav2 tree nodes XML file"
         ),
         bt_execution,
     ])

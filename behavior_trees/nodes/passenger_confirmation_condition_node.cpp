@@ -3,7 +3,7 @@
 #include "std_msgs/msg/empty.hpp"
 #include <thread>
 
-/// :TESTED:USING:      ros2 topic pub -1 /luggage_av/route std_msgs/msg/Empty
+/// :TESTED:USING:      ros2 topic pub -1 /luggage_av/passenger_confirmation std_msgs/msg/Empty
 
 
 namespace BT {
