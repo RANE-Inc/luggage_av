@@ -46,7 +46,7 @@ public:
         auto goal_msg = NavigateToPose::Goal();
         goal_msg.pose = goal_pose;
 
-        RCLCPP_INFO(this->get_logger(), "Sending goal");
+        RCLCPP_INFO(this->get_logger(), "Sending goal to nav2");
         auto send_goal_options = rclcpp_action::Client<NavigateToPose>::SendGoalOptions();
         send_goal_options.goal_response_callback =
             std::bind(&NavigateToPoseNode::goal_response_callback, this, std::placeholders::_1);
@@ -57,6 +57,7 @@ public:
 
         this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
         navigation_status_.store(NavigationStatus::REQUESTED);
+        RCLCPP_INFO(this->get_logger(), "Goal sent to nav2");
     }
 
     NavigationStatus getNavigationStatus() {
@@ -72,6 +73,7 @@ private:
     
 
     void goal_response_callback(std::shared_ptr<GoalHandleNavigateToPose> goal_handle) {
+        RCLCPP_INFO(this->get_logger(), "A");
         if (!goal_handle) {
             RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
             navigation_status_.store(NavigationStatus::REJECTED);
@@ -82,11 +84,13 @@ private:
     }
 
     void feedback_callback(GoalHandleNavigateToPose::SharedPtr, const std::shared_ptr<const NavigateToPose::Feedback> feedback) {
+        RCLCPP_INFO(this->get_logger(), "B");
         RCLCPP_DEBUG(this->get_logger(), "Current position: (%.2f, %.2f)", feedback->current_pose.pose.position.x, feedback->current_pose.pose.position.y);
         navigation_status_.store(NavigationStatus::NAVIGATING);
     }
 
     void result_callback(const GoalHandleNavigateToPose::WrappedResult & result) {
+        RCLCPP_INFO(this->get_logger(), "C");
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
                 RCLCPP_INFO(this->get_logger(), "Goal was successful");

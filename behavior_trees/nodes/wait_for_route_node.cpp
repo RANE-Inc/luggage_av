@@ -6,8 +6,6 @@
 #include <thread>
 #include <atomic>
 
-
-
 namespace BT {
 
 class WaitForRoute : public StatefulActionNode
@@ -17,7 +15,7 @@ public:
     using GoalHandleSendRoute = rclcpp_action::ServerGoalHandle<SendRoute>;
 
     WaitForRoute(const std::string& name, const NodeConfiguration& config)
-        : StatefulActionNode(name, config), route_received_(false)
+        : StatefulActionNode(name, config), route_received_(false), stop_spinning_(false)
     {
         // Initialize the ROS node
         node_ = rclcpp::Node::make_shared("wait_for_route");
@@ -36,26 +34,12 @@ public:
             std::bind(&WaitForRoute::handle_accepted, this, std::placeholders::_1));
 
         // Start spinning the node in a separate thread
-        spinning_ = true;
-        spin_thread_ = std::thread([this]() {
-            while (spinning_ && rclcpp::ok()) {
-                rclcpp::spin_some(node_);
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            }
-        });
+        startSpinning();
     }
 
     ~WaitForRoute() noexcept override
     {
-        // Stop spinning and clean up the thread
-
-        if (node_) {
-            node_->get_node_base_interface()->get_context()->shutdown("NavigateToLocation node halted"); // Signal spin to stop for this specific node
-            if (spin_thread_.joinable()) {
-                spinning_ = false;
-                spin_thread_.join();
-            }
-        }
+        cleanup();
     }
 
     static PortsList providedPorts()
@@ -68,6 +52,11 @@ public:
 
     NodeStatus onStart() override
     {
+        if (!rclcpp::ok()) {
+            RCLCPP_WARN(node_->get_logger(), "ROS context invalid, skipping start");
+            return NodeStatus::FAILURE;
+        }
+
         route_received_ = false;
         RCLCPP_INFO(node_->get_logger(), "Waiting for route...");
         return NodeStatus::RUNNING;
@@ -75,8 +64,13 @@ public:
 
     NodeStatus onRunning() override
     {
-        if (route_received_)
-        {
+        if (!rclcpp::ok()) {
+            RCLCPP_WARN(node_->get_logger(), "ROS context invalid, failing");
+            cleanup();
+            return NodeStatus::FAILURE;
+        }
+
+        if (route_received_) {
             route_received_ = false; // Reset for potential reuse
             setOutput("pickup_pose", pickup_pose_);
             setOutput("dropoff_pose", dropoff_pose_);
@@ -89,14 +83,45 @@ public:
     void onHalted() override
     {
         RCLCPP_INFO(node_->get_logger(), "WaitForRoute halted.");
-        // No need to stop spinning here; destructor will handle cleanup
+        cleanup();
     }
 
 private:
+    void startSpinning()
+    {
+        if (!node_ || spin_thread_.joinable()) {
+            return; // Already spinning or node invalid
+        }
+        stop_spinning_.store(false);
+        spin_thread_ = std::thread([this]() {
+            while (rclcpp::ok() && !stop_spinning_.load()) {
+                rclcpp::spin_some(node_);
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            RCLCPP_INFO(node_->get_logger(), "Spin thread stopped");
+        });
+    }
+
+    void cleanup()
+    {
+        if (node_) {
+            stop_spinning_.store(true);
+            if (spin_thread_.joinable()) {
+                RCLCPP_INFO(node_->get_logger(), "Joining spin thread");
+                spin_thread_.join();
+            }
+            node_.reset(); // Ensure node is destroyed after thread stops
+        }
+    }
+
     rclcpp_action::GoalResponse handle_goal(
         const rclcpp_action::GoalUUID& /* uuid */,
         std::shared_ptr<const SendRoute::Goal> goal)
     {
+        if (!rclcpp::ok()) {
+            RCLCPP_WARN(node_->get_logger(), "ROS context invalid, rejecting goal");
+            return rclcpp_action::GoalResponse::REJECT;
+        }
         RCLCPP_INFO(node_->get_logger(), "Received goal request");
         pickup_pose_ = goal->pickup_pose;
         dropoff_pose_ = goal->dropoff_pose;
@@ -130,6 +155,8 @@ private:
             goal_handle->succeed(result);
             route_received_ = true;
             RCLCPP_INFO(node_->get_logger(), "Goal succeeded");
+        } else {
+            RCLCPP_WARN(node_->get_logger(), "ROS context invalid, goal execution aborted");
         }
     }
 
@@ -139,7 +166,7 @@ private:
     bool route_received_;
     geometry_msgs::msg::PoseStamped pickup_pose_;
     geometry_msgs::msg::PoseStamped dropoff_pose_;
-    std::atomic<bool> spinning_{false};
+    std::atomic<bool> stop_spinning_;
     std::thread spin_thread_;
 };
 

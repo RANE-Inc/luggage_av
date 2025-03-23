@@ -65,7 +65,7 @@ int main(int argc, char **argv)
     }
     rclcpp::init(argc, argv);
     auto node = std::make_shared<BehaviorTreeNode>();
-    rclcpp::spin(node);
+    // rclcpp::spin(node);
     rclcpp::shutdown();
     return 0;
 }

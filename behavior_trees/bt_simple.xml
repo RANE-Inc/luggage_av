@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <root BTCPP_format="4" main_tree_to_execute="root_bt">
   <BehaviorTree ID="root_bt">
-    <Decorator ID="Repeat" num_cycles="5">
+    <Decorator ID="Repeat" num_cycles="10">
       <Fallback>
         <Sequence>
             <WaitForRoute name="WaitForRoute_1" pickup_pose="{pickup}" dropoff_pose="{dropoff}"/> 
