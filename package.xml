@@ -7,13 +7,20 @@
   <maintainer email="rrytw025@uottawa.ca">Fufs</maintainer>
   <license>TODO: License declaration</license>
 
-  <!-- Hardware interface -->
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
   <depend>hardware_interface</depend>
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_lifecycle</depend>
+  <depend>behaviortree_cpp_v3</depend>
+  <depend>service_msgs</depend>
+  <depend>nav2_msgs</depend>
+  <depend>luggage_av_msgs</depend>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>geometry_msgs</build_depend>
+  <build_depend>nav2_behavior_tree</build_depend>
 
   <exec_depend>ros2launch</exec_depend>
   <exec_depend>xacro</exec_depend>
@@ -21,11 +28,13 @@
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>ros2_control</exec_depend>
   <exec_depend>diff_drive_controller</exec_depend>
-  <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>joint_state_broadcaster</exec_depend>
   <exec_depend>slam_toolbox</exec_depend>
   <exec_depend>navigation2</exec_depend>
   <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
 
   <test_depend>rviz2</test_depend>
   <test_depend>joint_state_publisher_gui</test_depend>

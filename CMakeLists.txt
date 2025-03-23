@@ -1,3 +1,4 @@
+# PROJECT SETUP
 cmake_minimum_required(VERSION 3.8)
 project(luggage_av)
 
@@ -5,36 +6,58 @@ if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
-
 # DEPENDENCIES
-set(HARDWARE_INTERFACE_INCLUDE_DEPENDS
+set(DEPENDENCIES
   hardware_interface
   pluginlib
   rclcpp
   rclcpp_lifecycle
   Protobuf
+  geometry_msgs
+  behaviortree_cpp_v3
+  nav2_behavior_tree
+  service_msgs
+   tf2
+   yaml-cpp
+   nav2_msgs
+   luggage_av_msgs
+   rclcpp_action
 )
 
-# find dependencies
 find_package(ament_cmake REQUIRED)
-# uncomment the following section in order to fill in
-# further dependencies manually.
-# find_package(<dependency> REQUIRED)
-foreach(Dependency IN ITEMS ${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
+find_package(rosidl_default_generators REQUIRED)
+
+foreach(Dependency IN ITEMS ${DEPENDENCIES})
   find_package(${Dependency} REQUIRED)
 endforeach()
-include_directories(${Protobuf_INCLUDE_DIRS})
-include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
-# COMPILE
+# INCLUDE DIRECTORIES
+include_directories(
+  include
+  ${Protobuf_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_BINARY_DIR}
+  ${rclcpp_INCLUDE_DIRS}
+  ${geometry_msgs_INCLUDE_DIRS}
+   ${nav2_msgs_INCLUDE_DIRS}
+   ${rclcpp_action_INCLUDE_DIRS}
+)
+
+# CODE GENERATION
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_commands.proto ${PROJECT_SOURCE_DIR}/hardware_interface/proto/wheel_states.proto)
 
+# LIBRARY/EXECUTABLE CONFIGURATION
 add_library(
-  luggage_av
-  SHARED
+  luggage_av SHARED
   hardware_interface/src/luggage_av_hardware_interface.cpp
   hardware_interface/src/cobs.c
+  behavior_trees/nodes/wait_for_route_node.cpp
+  behavior_trees/nodes/passenger_confirmation_condition_node.cpp
+  behavior_trees/nodes/navigate_to_location_bt_node.cpp
   ${PROTO_SRCS}
+)
+ament_target_dependencies(
+  luggage_av PUBLIC
+  ${DEPENDENCIES}
 )
 
 target_compile_features(luggage_av PUBLIC cxx_std_17)
@@ -45,13 +68,13 @@ target_include_directories(luggage_av PUBLIC
   ${Protobuf_INCLUDE_DIRS}
 )
 
-ament_target_dependencies(
-  luggage_av PUBLIC
-  ${HARDWARE_INTERFACE_INCLUDE_DEPENDS}
-)
-
 pluginlib_export_plugin_description_file(hardware_interface luggage_av.xml)
 
+ament_export_dependencies(rosidl_default_runtime)
+
+# EXECUTABLE SETUP
+add_executable(behavior_tree_node behavior_trees/behavior_tree_execution.cpp)
+ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs nav2_msgs rclcpp_action luggage_av_msgs)
 
 # INSTALL
 install(
@@ -60,7 +83,7 @@ install(
 )
 
 install(
-  DIRECTORY configs launch maps parameters urdf worlds
+  DIRECTORY configs launch maps parameters urdf worlds behavior_trees behavior_trees/nodes
   DESTINATION share/${PROJECT_NAME}
 )
 
@@ -71,11 +94,15 @@ install(TARGETS luggage_av
   RUNTIME DESTINATION bin
 )
 
+install(TARGETS behavior_tree_node
+  DESTINATION lib/${PROJECT_NAME})
+
+# TESTS
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   find_package(hardware_interface)
   find_package(ament_cmake_gmock REQUIRED)
-  # the following line skips the linter which checks for copyrights
+# the following line skips the linter which checks for copyrights
   # comment the line when a copyright and license is added to all source files
   #set(ament_cmake_copyright_FOUND TRUE)
   # the following line skips cpplint (only works in a git repo)
@@ -85,8 +112,8 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-
 # EXPORT
 ament_export_targets(export_luggage_av HAS_LIBRARY_TARGET)
-ament_export_dependencies(${HARDWARE_INTERFACE_INCLUDE_DEPENDS})
+ament_export_dependencies(${DEPENDENCIES})
+ament_export_dependencies(rosidl_default_runtime)
 ament_package()

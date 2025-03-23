@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4" main_tree_to_execute="root_bt">
+  <BehaviorTree ID="root_bt">
+    <Decorator ID="Repeat" num_cycles="10">
+      <Fallback>
+        <Sequence>
+            <WaitForRoute name="WaitForRoute_1" pickup_pose="{pickup}" dropoff_pose="{dropoff}"/> 
+            <NavigateToLocation name="NavigateToLocation_1" goal="{pickup}"/> 
+            <WaitForPassengerConfirmation name="WaitForPassengerConfirmation_1"/>
+            <NavigateToLocation name="NavigateToLocation_2" goal="{dropoff}"/> 
+            <WaitForPassengerConfirmation name="WaitForPassengerConfirmation_2"/>
+            <NavigateToLocation name="NavigateToLocation_3"/> 
+        </Sequence>
+        <NavigateToLocation/> 
+      </Fallback>
+    </Decorator>
+  </BehaviorTree>
+</root>
