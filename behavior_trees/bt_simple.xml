@@ -4,15 +4,75 @@
     <Decorator ID="Repeat" num_cycles="5">
       <Fallback>
         <Sequence>
-          <WaitForRoute pickup_pose="{pickup}" dropoff_pose="{dropoff}"/> 
-          <NavigateToLocation goal="{pickup}"/> 
-          <WaitForPassengerConfirmation/>
-          <NavigateToLocation goal="{dropoff}"/> 
-          <WaitForPassengerConfirmation/>
-          <NavigateToLocation/> 
+            <WaitForRoute name="WaitForRoute_1" pickup_pose="{pickup}" dropoff_pose="{dropoff}"/> 
+            <NavigateToLocation name="NavigateToLocation_1" goal="{pickup}"/> 
+            <WaitForPassengerConfirmation name="WaitForPassengerConfirmation_1"/>
+            <NavigateToLocation name="NavigateToLocation_2" goal="{dropoff}"/> 
+            <WaitForPassengerConfirmation name="WaitForPassengerConfirmation_2"/>
+            <NavigateToLocation name="NavigateToLocation_3"/> 
         </Sequence>
         <NavigateToLocation/> 
       </Fallback>
     </Decorator>
   </BehaviorTree>
 </root>
+
+
+<!--
+
+<?xml version="1.0" encoding="UTF-8"?>
+<root BTCPP_format="4"
+      main_tree_to_execute="root_bt">
+
+  <!-- include -->
+  <include ros_pkg="luggage_av"  path="behavior_trees/nav2_tree_nodes.xml"/>
+
+  <!-- bt -->
+  <BehaviorTree ID="root_bt">
+    <Repeat num_cycles="5">
+      <Fallback>
+        <Sequence>
+          <WaitForRoute name="WaitForRoute_1"
+                        pickup_pose="{pickup}"
+                        dropoff_pose="{dropoff}"/>
+          <NavigateToPose goal="{pickup}"
+                          behavior_tree=""
+                          error_code_id=""
+                          server_timeout=""
+                          server_name=""/>
+          <WaitForPassengerConfirmation name="WaitForPassengerConfirmation_1"/>
+          <NavigateToPose goal="{dropoff}"
+                          behavior_tree=""
+                          error_code_id=""
+                          server_timeout=""
+                          server_name=""/>
+          <WaitForPassengerConfirmation name="WaitForPassengerConfirmation_2"/>
+          <NavigateToLocation name="NavigateToLocation_3"
+                              goal=""/>
+        </Sequence>
+        <NavigateToLocation goal=""/>
+      </Fallback>
+    </Repeat>
+  </BehaviorTree>
+
+  <!-- Description of Node Models (used by Groot) -->
+  <TreeNodesModel>
+    <Action ID="NavigateToLocation"
+            editable="true">
+      <input_port name="goal"/>
+    </Action>
+    <Action ID="WaitForPassengerConfirmation"
+            editable="true"/>
+    <Action ID="WaitForRoute"
+            editable="true">
+      <output_port name="pickup_pose"
+                   type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">First destination to plan to</output_port>
+      <output_port name="dropoff_pose"
+                   type="geometry_msgs::msg::PoseStamped_&lt;std::allocator&lt;void&gt; &gt;">Second destination to plan to</output_port>
+    </Action>
+  </TreeNodesModel>
+
+</root>
+
+-->
+

@@ -86,7 +86,14 @@ public:
 
 
     // not handled 
-    void onHalted() override{};
+    void onHalted() override {
+        if (navigate_to_pose_node_) {
+            navigate_to_pose_node_->get_node_base_interface()->get_context()->shutdown("NavigateToLocation node halted"); // Signal spin to stop for this specific node
+            if (spin_thread_.joinable()) {
+                spin_thread_.join();
+            }
+        }
+    }
 
 
 private:

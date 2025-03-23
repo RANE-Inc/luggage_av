@@ -1,7 +1,10 @@
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
+#include "std_msgs/msg/empty.hpp"
 #include <thread>
+
+/// :TESTED:USING:      ros2 topic pub -1 /luggage_av/route std_msgs/msg/Empty
+
 
 namespace BT {
 
@@ -35,10 +38,10 @@ public:
 
             RCLCPP_INFO(node_->get_logger(), "Creating subscriber for %s topic.", topic.c_str());
 
-            subscriber_ = node_->create_subscription<std_msgs::msg::String>(
-                topic, 10, [this](const std_msgs::msg::String::SharedPtr msg)
+            subscriber_ = node_->create_subscription<std_msgs::msg::Empty>(
+                topic, 10, [this](const std_msgs::msg::Empty::SharedPtr)
                 {
-                    RCLCPP_INFO(node_->get_logger(), "[%s] Received message: %s", namespace_.c_str(), msg->data.c_str());
+                    RCLCPP_INFO(node_->get_logger(), "[%s] Received intentionally empty message", namespace_.c_str());
                     confirmation_received_ = true;
                 });
 
@@ -86,7 +89,7 @@ private:
     rclcpp::Node::SharedPtr node_;
     std::thread spin_thread_;
     std::string namespace_;
-    rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscriber_;
+    rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr subscriber_;
     bool confirmation_received_;
     bool node_initialized_;
 };

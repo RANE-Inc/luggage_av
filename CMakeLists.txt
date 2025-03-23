@@ -20,6 +20,7 @@ set(DEPENDENCIES
    tf2
    yaml-cpp
    nav2_msgs
+   luggage_av_msgs
    rclcpp_action
 )
 
@@ -73,7 +74,7 @@ ament_export_dependencies(rosidl_default_runtime)
 
 # EXECUTABLE SETUP
 add_executable(behavior_tree_node behavior_trees/behavior_tree_execution.cpp)
-ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs nav2_msgs rclcpp_action)
+ament_target_dependencies(behavior_tree_node rclcpp behaviortree_cpp_v3 geometry_msgs nav2_msgs rclcpp_action luggage_av_msgs)
 
 # INSTALL
 install(

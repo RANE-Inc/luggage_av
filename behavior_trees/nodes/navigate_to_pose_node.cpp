@@ -3,6 +3,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <nav2_msgs/action/navigate_to_pose.hpp>
+#include <atomic>
 
 class NavigateToPoseNode : public rclcpp::Node
 {
@@ -25,8 +26,7 @@ public:
     using GoalHandleNavigateToPose = rclcpp_action::ClientGoalHandle<NavigateToPose>;
     using NavigationStatusCallback = std::function<void(NavigationStatus)>;
 
-    NavigateToPoseNode(PoseStamped goal_pose)
-        : Node("navigate_to_pose_node")
+    NavigateToPoseNode(PoseStamped goal_pose) : Node("navigate_to_pose_node")
     {
         namespace_ = this->get_namespace();
         if (namespace_ == "/") namespace_ = "";
@@ -56,56 +56,53 @@ public:
             std::bind(&NavigateToPoseNode::result_callback, this, std::placeholders::_1);
 
         this->client_ptr_->async_send_goal(goal_msg, send_goal_options);
-        navigation_status_ = NavigationStatus::REQUESTED;
+        navigation_status_.store(NavigationStatus::REQUESTED);
     }
 
     NavigationStatus getNavigationStatus() {
-        return navigation_status_;
+        return navigation_status_.load();
     }
 
+
+    
 private:
     std::string namespace_;
     rclcpp_action::Client<NavigateToPose>::SharedPtr client_ptr_;
-    NavigationStatus navigation_status_ = NavigationStatus::UNINITIALIZED;
+    std::atomic<NavigationStatus> navigation_status_{NavigationStatus::UNINITIALIZED};
+    
 
-    void goal_response_callback(std::shared_ptr<GoalHandleNavigateToPose> goal_handle)
-    {
+    void goal_response_callback(std::shared_ptr<GoalHandleNavigateToPose> goal_handle) {
         if (!goal_handle) {
             RCLCPP_ERROR(this->get_logger(), "Goal was rejected by server");
-            navigation_status_ = NavigationStatus::REJECTED;
+            navigation_status_.store(NavigationStatus::REJECTED);
         } else {
             RCLCPP_INFO(this->get_logger(), "Goal accepted by server, waiting for result");
-            navigation_status_ = NavigationStatus::ACCEPTED;
+            navigation_status_.store(NavigationStatus::ACCEPTED);
         }
     }
 
-    void feedback_callback(
-        GoalHandleNavigateToPose::SharedPtr,
-        const std::shared_ptr<const NavigateToPose::Feedback> feedback)
-    {
+    void feedback_callback(GoalHandleNavigateToPose::SharedPtr, const std::shared_ptr<const NavigateToPose::Feedback> feedback) {
         RCLCPP_DEBUG(this->get_logger(), "Current position: (%.2f, %.2f)", feedback->current_pose.pose.position.x, feedback->current_pose.pose.position.y);
-        navigation_status_ = NavigationStatus::NAVIGATING;
+        navigation_status_.store(NavigationStatus::NAVIGATING);
     }
 
-    void result_callback(const GoalHandleNavigateToPose::WrappedResult & result)
-    {
-        navigation_status_ = NavigationStatus::SUCCEEDED;
+    void result_callback(const GoalHandleNavigateToPose::WrappedResult & result) {
         switch (result.code) {
             case rclcpp_action::ResultCode::SUCCEEDED:
                 RCLCPP_INFO(this->get_logger(), "Goal was successful");
-                navigation_status_ = NavigationStatus::SUCCEEDED;
+                navigation_status_.store(NavigationStatus::SUCCEEDED);
                 break;
             case rclcpp_action::ResultCode::ABORTED:
                 RCLCPP_ERROR(this->get_logger(), "Goal was aborted");
-                navigation_status_ = NavigationStatus::ABORTED;
+                navigation_status_.store(NavigationStatus::ABORTED);
                 break;
             case rclcpp_action::ResultCode::CANCELED:
                 RCLCPP_ERROR(this->get_logger(), "Goal was canceled");
-                navigation_status_ = NavigationStatus::CANCELED;
+                navigation_status_.store(NavigationStatus::CANCELED);
                 break;
             default:
                 RCLCPP_ERROR(this->get_logger(), "Unknown result code");
-                navigation_status_ = NavigationStatus::UNKNOWN_ERROR;
+                navigation_status_.store(NavigationStatus::UNKNOWN_ERROR);
                 break;
         }
     }
