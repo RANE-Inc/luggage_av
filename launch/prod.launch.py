@@ -30,14 +30,14 @@ def generate_launch_description():
             ],
         ),
 
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "nav2.launch.py")
-            ]),
-            launch_arguments=[
-                ("namespace", namespace),
-            ],
-        ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource([
+        #         os.path.join(pkg_share, "launch", "nodes", "nav2.launch.py")
+        #     ]),
+        #     launch_arguments=[
+        #         ("namespace", namespace),
+        #     ],
+        # ),
 
         # TODO: TouchUI
     ])
