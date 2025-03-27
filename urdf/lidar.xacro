@@ -40,7 +40,7 @@
     <joint name="laser_joint" type="fixed">
         <parent link="lidar_mount_link"/>
         <child link="base_laser"/>
-        <origin xyz="${lidar_sensor_x_offset} ${lidar_sensor_y_offset} ${lidar_sensor_z_offset}" rpy="0 0 ${pi/2}"/> <!--half the height of the mount + half the height of the lidar itself -->
+        <origin xyz="${lidar_sensor_x_offset} ${lidar_sensor_y_offset} ${lidar_sensor_z_offset}" rpy="0 0 ${pi}"/> <!--half the height of the mount + half the height of the lidar itself -->
     </joint>
 
     <link name="base_laser">
