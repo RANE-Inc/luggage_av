@@ -57,4 +57,12 @@ def generate_launch_description():
                 ("slam_mode", "mapping"), # FIXME: Launch Argument
             ],
         ),
+        IncludeLaunchDescription(
+            PythonLaunchDescriptionSource([
+                os.path.join(pkg_share, "launch", "nodes", "gscam2.launch.py")
+            ]),
+            launch_arguments=[
+                ("namespace", namespace),
+            ],
+        ),
     ])

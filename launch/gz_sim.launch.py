@@ -18,6 +18,13 @@ def generate_launch_description():
     world = LaunchConfiguration("world")
     namespace = LaunchConfiguration("namespace")
 
+    gazebo_ros_image_bridge_node = Node(
+        package='ros_gz_image',
+        executable='image_bridge',
+        arguments=[["/",namespace,'/image_raw']], # List of topics, topic in gz must match topic in ROS2
+        output='screen',
+    )
+
 
     return LaunchDescription([
         DeclareLaunchArgument(
@@ -54,6 +61,7 @@ def generate_launch_description():
                 ("allow_renaming", "true"),
             ]
         ),
+        gazebo_ros_image_bridge_node,
 
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([
@@ -95,7 +103,7 @@ def generate_launch_description():
         ),
         # IncludeLaunchDescription(
         #     PythonLaunchDescriptionSource([
-        #         os.path.join(pkg_share, "launch", "navigation_launch.py")
+        #         os.path.join(pkg_share, "launch", "nav2.launch.py")
         #     ]),
         #     launch_arguments=[
         #         ("namespace", namespace),
