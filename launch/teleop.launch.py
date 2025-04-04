@@ -12,6 +12,7 @@ def generate_launch_description():
     pkg_share = get_package_share_directory("luggage_av")
 
     namespace = LaunchConfiguration("namespace")
+    slam_mode = LaunchConfiguration("namespace")
 
 
     return LaunchDescription([
@@ -19,6 +20,11 @@ def generate_launch_description():
             'namespace',
             default_value="luggage_av",
             description="Namespace of the bot (usually its unique identifier)"
+        ),
+        DeclareLaunchArgument(
+            'slam_mode',
+            default_value="mapping",
+            description="Mapping mode for slam_toolbox (either 'mapping' or 'localization')"
         ),
 
         IncludeLaunchDescription(
@@ -54,15 +60,15 @@ def generate_launch_description():
             launch_arguments=[
                 ("namespace", namespace),
                 ("sim_mode", "false"),
-                ("slam_mode", "mapping"), # FIXME: Launch Argument
+                ("slam_mode", slam_mode),
             ],
         ),
-        IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([
-                os.path.join(pkg_share, "launch", "nodes", "gscam2.launch.py")
-            ]),
-            launch_arguments=[
-                ("namespace", namespace),
-            ],
-        ),
+        # IncludeLaunchDescription(
+        #     PythonLaunchDescriptionSource([
+        #         os.path.join(pkg_share, "launch", "nodes", "gscam2.launch.py")
+        #     ]),
+        #     launch_arguments=[
+        #         ("namespace", namespace),
+        #     ],
+        # ),
     ])
