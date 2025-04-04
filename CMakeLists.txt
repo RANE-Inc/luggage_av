@@ -64,6 +64,11 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+install(
+  DIRECTORY scripts
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(TARGETS luggage_av
   EXPORT export_luggage_av
   ARCHIVE DESTINATION lib
